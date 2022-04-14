@@ -8,7 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.movies2mobile.R
 import com.example.movies2mobile.models.MovieModel
 
-public class MovieRecyclerAdapter: RecyclerView.Adapter<MovieRecyclerAdapter.ViewHolder>() {
+public class MovieRecyclerAdapter(
+    private val onItemClicked: (MovieModel) -> Unit
+): RecyclerView.Adapter<MovieRecyclerAdapter.ViewHolder>() {
 
     private var movieList: List<MovieModel> = listOf() // todo add to constructor or public prop?
 
@@ -18,29 +20,40 @@ public class MovieRecyclerAdapter: RecyclerView.Adapter<MovieRecyclerAdapter.Vie
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieRecyclerAdapter.ViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.card_layout_movie, parent, false)
-        return ViewHolder(v)
+        return ViewHolder(v){
+            onItemClicked(movieList[it])
+        }
     }
 
     override fun onBindViewHolder(holder: MovieRecyclerAdapter.ViewHolder, position: Int) {
-        holder.title.setText(movieList[position].title)
-        holder.detail.setText(getDetail(movieList[position]))
+        holder.bind(movieList[position])
     }
 
-    private fun getDetail(movieModel: MovieModel): String {
-        return "${movieModel.category} - ${movieModel.releaseYear} - ${movieModel.runningTime} - ${movieModel.format}"
-    }
 
     override fun getItemCount(): Int {
         return movieList.size
     }
 
-    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View, onItemClicked: (Int) -> Unit): RecyclerView.ViewHolder(itemView) {
         var title: TextView
         var detail: TextView
 
         init {
             title = itemView.findViewById(R.id.title)
             detail = itemView.findViewById(R.id.detail)
+
+            itemView.setOnClickListener {
+                onItemClicked(absoluteAdapterPosition)
+            }
+        }
+
+        fun bind(movieModel: MovieModel){
+            title.setText(movieModel.title)
+            detail.setText(getDetail(movieModel))
+        }
+
+        private fun getDetail(movieModel: MovieModel): String {
+            return "${movieModel.category} - ${movieModel.releaseYear} - ${movieModel.runningTime} - ${movieModel.format}"
         }
     }
 }

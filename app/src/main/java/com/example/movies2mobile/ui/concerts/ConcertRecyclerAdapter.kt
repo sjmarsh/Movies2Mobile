@@ -9,7 +9,9 @@ import com.example.movies2mobile.R
 import com.example.movies2mobile.models.MovieModel
 
 
-class ConcertRecyclerAdapter: RecyclerView.Adapter<ConcertRecyclerAdapter.ViewHolder>() {
+class ConcertRecyclerAdapter(
+    private val onItemClicked: (MovieModel) -> Unit
+): RecyclerView.Adapter<ConcertRecyclerAdapter.ViewHolder>() {
 
     private var concertList: List<MovieModel> = listOf() // todo add to constructor or public prop?
 
@@ -19,12 +21,13 @@ class ConcertRecyclerAdapter: RecyclerView.Adapter<ConcertRecyclerAdapter.ViewHo
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConcertRecyclerAdapter.ViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.card_layout_concert, parent, false)
-        return ViewHolder(v)
+        return ViewHolder(v){
+            onItemClicked(concertList[it])
+        }
     }
 
     override fun onBindViewHolder(holder: ConcertRecyclerAdapter.ViewHolder, position: Int) {
-        holder.title.setText(concertList[position].title)
-        holder.detail.setText(getDetail(concertList[position]))
+        holder.bind(concertList[position])
     }
 
     private fun getDetail(concertModel: MovieModel): String {
@@ -36,13 +39,26 @@ class ConcertRecyclerAdapter: RecyclerView.Adapter<ConcertRecyclerAdapter.ViewHo
     }
 
 
-    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View, onItemClicked: (Int) -> Unit): RecyclerView.ViewHolder(itemView) {
         var title: TextView
         var detail: TextView
 
         init {
             title = itemView.findViewById(R.id.title)
             detail = itemView.findViewById(R.id.detail)
+
+            itemView.setOnClickListener {
+                onItemClicked(absoluteAdapterPosition)
+            }
+        }
+
+        fun bind(concertModel: MovieModel){
+            title.setText(concertModel.title)
+            detail.setText(getDetail(concertModel))
+        }
+
+        private fun getDetail(concertModel: MovieModel): String {
+            return "${concertModel.releaseYear} - ${concertModel.runningTime} - ${concertModel.format}"
         }
     }
 }

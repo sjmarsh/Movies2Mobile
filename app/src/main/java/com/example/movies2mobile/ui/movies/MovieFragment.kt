@@ -1,14 +1,17 @@
 package com.example.movies2mobile.ui.movies
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.movies2mobile.data.DataService
 import com.example.movies2mobile.databinding.FragmentMoviesBinding
+import com.example.movies2mobile.models.MovieModel
 
 class MovieFragment : Fragment() {
 
@@ -34,12 +37,30 @@ class MovieFragment : Fragment() {
             movieViewModel.searchText = binding.txtSearch.text.toString()
             movieViewModel.searchMovies()
 
-            _adapter = MovieRecyclerAdapter()
+            _adapter = MovieRecyclerAdapter{
+                movieModel -> showMovieDetail(movieModel)
+            }
             binding.lstMovies.adapter = _adapter
             (_adapter as MovieRecyclerAdapter).setMovies(movieViewModel.movieList)
         }
 
         return root
+    }
+
+    private fun showMovieDetail(movieModel: MovieModel){
+        // show a simple alert dialog for now.  eg. https://www.tutorialkart.com/kotlin-android/android-alert-dialog-example/
+        // TODO: use a custom layout with more detail. eg. https://developer.android.com/guide/topics/ui/dialogs
+        val dialogBuilder = this.context?.let { AlertDialog.Builder(it) }
+
+        dialogBuilder?.setMessage(movieModel.description)
+            ?.setCancelable(false)
+            ?.setNegativeButton("Cancel", DialogInterface.OnClickListener {
+                    dialog, id -> dialog.cancel()
+            })
+
+        val alert = dialogBuilder?.create()
+        alert?.setTitle("Movie Detail")
+        alert?.show()
     }
 
     override fun onDestroyView() {
