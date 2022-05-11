@@ -37,6 +37,7 @@ android {
             excludes += ['META-INF/androidx.cardview_cardview.version']
         }
     }
+    namespace 'com.example.movies2mobile'
 
 }
 
