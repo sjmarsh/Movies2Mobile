@@ -1,0 +1,63 @@
+package com.example.movies2mobile.ui.shared
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.example.movies2mobile.R
+import com.example.movies2mobile.models.MovieModel
+
+public class SearchRecyclerAdapter(private val onItemClicked: (MovieModel) -> Unit)
+    : RecyclerView.Adapter<SearchRecyclerAdapter.ViewHolder>(){
+
+    private var _searchContext: SearchContext? = SearchContext.MOVIE
+    private var _searchResults: List<MovieModel> = listOf() // todo add to constructor or public prop?
+
+    public fun setSearchContext(searchContext: SearchContext?) {
+        _searchContext = searchContext
+    }
+
+    public fun setSearchResults(searchResults: List<MovieModel>) {
+        _searchResults = searchResults
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchRecyclerAdapter.ViewHolder {
+        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.card_layout_movie, parent, false)
+        return ViewHolder(itemView) { onItemClicked(_searchResults[it]) }
+    }
+
+    override fun onBindViewHolder(holder: SearchRecyclerAdapter.ViewHolder, position: Int) {
+        holder.bind(_searchResults[position])
+    }
+
+    override fun getItemCount(): Int {
+        return _searchResults.size
+    }
+
+    inner class ViewHolder(itemView: View, onItemClicked: (Int) -> Unit): RecyclerView.ViewHolder(itemView) {
+        var title: TextView
+        var detail: TextView
+
+        init {
+            title = itemView.findViewById(R.id.title)
+            detail = itemView.findViewById(R.id.detail)
+
+            itemView.setOnClickListener { onItemClicked(absoluteAdapterPosition) }
+        }
+
+        fun bind(movieModel: MovieModel) {
+            title.setText(movieModel.title)
+            detail.setText(getDetail(movieModel, _searchContext))
+        }
+
+        private fun getDetail(movieModel: MovieModel, searchContext: SearchContext?): String {
+            when(searchContext) {
+                SearchContext.MOVIE -> return "${movieModel.category} - ${movieModel.releaseYear} - ${movieModel.runningTime} - ${movieModel.format}"
+                SearchContext.CONCERT -> return "${movieModel.releaseYear} - ${movieModel.runningTime} - ${movieModel.format}"
+                else -> { println("Search Context not supported")} // TODO error logging
+            }
+            return ""
+        }
+    }
+}
