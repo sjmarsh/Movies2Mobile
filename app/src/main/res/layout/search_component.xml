@@ -16,6 +16,7 @@
         android:hint="@string/search"
         android:inputType="text"
         android:imeOptions="actionSearch"
+        android:drawableRight="@drawable/ic_baseline_clear_24"
         app:layout_constraintEnd_toStartOf="@+id/btnSearch"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

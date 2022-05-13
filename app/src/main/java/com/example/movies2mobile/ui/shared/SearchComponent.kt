@@ -2,7 +2,6 @@ package com.example.movies2mobile.ui.shared
 
 import android.app.Activity
 import android.content.Context
-import android.content.DialogInterface
 import android.util.AttributeSet
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -15,22 +14,21 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.movies2mobile.R
 import com.example.movies2mobile.data.DataService
 import com.example.movies2mobile.models.MovieModel
+import com.example.movies2mobile.ui.extensions.setOnRightDrawableClicked
 
 class SearchComponent(context: Context, attrs: AttributeSet ) : ConstraintLayout(context, attrs) {
-
-    var searchContext: SearchContext = SearchContext.MOVIE
 
     init {
         inflate(context, R.layout.search_component, this)
 
-        var lstSearchResults = findViewById<RecyclerView>(R.id.lstSearchResults)
+        val lstSearchResults = findViewById<RecyclerView>(R.id.lstSearchResults)
         if(lstSearchResults != null) {
             lstSearchResults.layoutManager = LinearLayoutManager(this.context)
         }
 
-        var txtSearchText = findViewById<TextView>(R.id.txtSearch)
-        var btnSearch = findViewById<ImageButton>(R.id.btnSearch)
-        var searchContext = getSearchContext(context, attrs)
+        val txtSearchText = findViewById<TextView>(R.id.txtSearch)
+        val btnSearch = findViewById<ImageButton>(R.id.btnSearch)
+        val searchContext = getSearchContext(context, attrs)
 
         if(txtSearchText != null && btnSearch != null){
 
@@ -49,29 +47,35 @@ class SearchComponent(context: Context, attrs: AttributeSet ) : ConstraintLayout
                     else -> false
                 }
             }
+
+            //clear search
+            txtSearchText.setOnRightDrawableClicked {
+                it.text = ""
+                search(txtSearchText, lstSearchResults, searchContext)
+            }
         }
     }
 
     private fun getSearchContext(context: Context, attrs: AttributeSet): SearchContext? {
-        var searchContext : SearchContext? = SearchContext.MOVIE
+        val searchContext: SearchContext?
         val customAttributesStyle = context.obtainStyledAttributes(attrs, R.styleable.SearchComponent, 0, 0)
         try {
-            var searchContextString = customAttributesStyle.getString(R.styleable.SearchComponent_searchContext)
+            val searchContextString = customAttributesStyle.getString(R.styleable.SearchComponent_searchContext)
             searchContext = SearchContext.values().find { it.name == searchContextString } ?: SearchContext.MOVIE
         } finally {
             customAttributesStyle.recycle()
-            return searchContext
         }
+        return searchContext
     }
 
     private fun search(txtSearchText: TextView, lstSearchResults: RecyclerView, searchContext: SearchContext?) {
 
-        var viewModel = SearchViewModel(DataService(this.context.filesDir.path))
+        val viewModel = SearchViewModel(DataService(this.context.filesDir.path))
         viewModel.searchText = txtSearchText.text.toString()
         viewModel.searchContext = searchContext
         viewModel.search()
 
-        var searchRecyclerAdapter = SearchRecyclerAdapter { searchResult ->
+        val searchRecyclerAdapter = SearchRecyclerAdapter { searchResult ->
             showItemDetail(searchResult)
         }
 
@@ -94,9 +98,9 @@ class SearchComponent(context: Context, attrs: AttributeSet ) : ConstraintLayout
 
         dialogBuilder?.setMessage(movieModel.description)
             ?.setCancelable(false)
-            ?.setNegativeButton("Cancel", DialogInterface.OnClickListener {
-                    dialog, id -> dialog.cancel()
-            })
+            ?.setNegativeButton("Cancel") { dialog, _ ->
+                dialog.cancel()
+            }
 
         val alert = dialogBuilder?.create()
         alert?.setTitle(movieModel.title)
@@ -104,3 +108,4 @@ class SearchComponent(context: Context, attrs: AttributeSet ) : ConstraintLayout
     }
 
 }
+
