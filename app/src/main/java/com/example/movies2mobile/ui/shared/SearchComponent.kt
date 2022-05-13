@@ -42,7 +42,7 @@ class SearchComponent(context: Context, attrs: AttributeSet ) : ConstraintLayout
 
             txtSearchText.setOnEditorActionListener { _, actionId, _ ->
                 when(actionId){
-                    EditorInfo.IME_ACTION_DONE -> {
+                    EditorInfo.IME_ACTION_SEARCH -> {
                         search(txtSearchText, lstSearchResults, searchContext)
                         true
                     }

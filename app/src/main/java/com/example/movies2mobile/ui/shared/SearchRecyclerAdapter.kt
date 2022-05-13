@@ -23,7 +23,7 @@ public class SearchRecyclerAdapter(private val onItemClicked: (MovieModel) -> Un
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchRecyclerAdapter.ViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.card_layout_movie, parent, false)
+        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.card_layout_search_result, parent, false)
         return ViewHolder(itemView) { onItemClicked(_searchResults[it]) }
     }
 

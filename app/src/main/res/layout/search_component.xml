@@ -15,7 +15,7 @@
         android:layout_height="50dp"
         android:hint="@string/search"
         android:inputType="text"
-        android:imeOptions="actionDone"
+        android:imeOptions="actionSearch"
         app:layout_constraintEnd_toStartOf="@+id/btnSearch"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
