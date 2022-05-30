@@ -10,16 +10,18 @@
         <entry key="..\:/Users/Shannon/AndroidStudioProjects/Movies2Mobile/app/src/main/res/drawable/ic_notifications_black_24dp.xml" value="0.196" />
         <entry key="..\:/Users/Shannon/AndroidStudioProjects/Movies2Mobile/app/src/main/res/drawable/ic_search_black_24.xml" value="0.3575" />
         <entry key="..\:/Users/Shannon/AndroidStudioProjects/Movies2Mobile/app/src/main/res/drawable/ic_settings_black_24dp.xml" value="0.3575" />
+        <entry key="..\:/Users/Shannon/AndroidStudioProjects/Movies2Mobile/app/src/main/res/drawable/round_corner.xml" value="0.196" />
         <entry key="..\:/Users/Shannon/AndroidStudioProjects/Movies2Mobile/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/Users/Shannon/AndroidStudioProjects/Movies2Mobile/app/src/main/res/layout/card_layout_concert.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Shannon/AndroidStudioProjects/Movies2Mobile/app/src/main/res/layout/card_layout_movie.xml" value="0.1" />
+        <entry key="..\:/Users/Shannon/AndroidStudioProjects/Movies2Mobile/app/src/main/res/layout/dialog_movie_detail.xml" value="0.33" />
         <entry key="..\:/Users/Shannon/AndroidStudioProjects/Movies2Mobile/app/src/main/res/layout/fragment_concerts.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Shannon/AndroidStudioProjects/Movies2Mobile/app/src/main/res/layout/fragment_home.xml" value="0.2658514492753623" />
         <entry key="..\:/Users/Shannon/AndroidStudioProjects/Movies2Mobile/app/src/main/res/layout/fragment_movies.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Shannon/AndroidStudioProjects/Movies2Mobile/app/src/main/res/layout/fragment_notifications.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Shannon/AndroidStudioProjects/Movies2Mobile/app/src/main/res/layout/fragment_settings.xml" value="0.1712962962962963" />
         <entry key="..\:/Users/Shannon/AndroidStudioProjects/Movies2Mobile/app/src/main/res/layout/movie_card_layout.xml" value="0.2755208333333333" />
-        <entry key="..\:/Users/Shannon/AndroidStudioProjects/Movies2Mobile/app/src/main/res/layout/search_component.xml" value="0.365625" />
+        <entry key="..\:/Users/Shannon/AndroidStudioProjects/Movies2Mobile/app/src/main/res/layout/search_component.xml" value="0.1" />
         <entry key="..\:/Users/Shannon/AndroidStudioProjects/Movies2Mobile/app/src/main/res/menu/bottom_nav_menu.xml" value="0.36666666666666664" />
       </map>
     </option>

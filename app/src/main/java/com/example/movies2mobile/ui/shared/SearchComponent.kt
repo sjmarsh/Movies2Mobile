@@ -9,6 +9,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.movies2mobile.R
@@ -92,19 +93,8 @@ class SearchComponent(context: Context, attrs: AttributeSet ) : ConstraintLayout
     }
 
     private fun showItemDetail(movieModel: MovieModel) {
-        // show a simple alert dialog for now.  eg. https://www.tutorialkart.com/kotlin-android/android-alert-dialog-example/
-        // TODO: use a custom layout with more detail. eg. https://developer.android.com/guide/topics/ui/dialogs
-        val dialogBuilder = this.context?.let { AlertDialog.Builder(it) }
-
-        dialogBuilder?.setMessage(movieModel.description)
-            ?.setCancelable(false)
-            ?.setNegativeButton("Cancel") { dialog, _ ->
-                dialog.cancel()
-            }
-
-        val alert = dialogBuilder?.create()
-        alert?.setTitle(movieModel.title)
-        alert?.show()
+        var fragmentManager = (this.context as FragmentActivity).supportFragmentManager
+        MovieDetailDialog(movieModel).show(fragmentManager, "MovieDetailDialog")
     }
 
 }
