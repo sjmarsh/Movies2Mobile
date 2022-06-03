@@ -7,7 +7,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageButton
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -70,14 +69,14 @@ class SearchComponent(context: Context, attrs: AttributeSet ) : ConstraintLayout
     }
 
     private fun search(txtSearchText: TextView, lstSearchResults: RecyclerView, searchContext: SearchContext?) {
-
-        val viewModel = SearchViewModel(DataService(this.context.filesDir.path))
+        val dataService = DataService(this.context.filesDir.path)
+        val viewModel = SearchViewModel(dataService)
         viewModel.searchText = txtSearchText.text.toString()
         viewModel.searchContext = searchContext
         viewModel.search()
 
         val searchRecyclerAdapter = SearchRecyclerAdapter { searchResult ->
-            showItemDetail(searchResult)
+            showItemDetail(searchResult, dataService)
         }
 
         lstSearchResults.adapter = searchRecyclerAdapter
@@ -92,10 +91,9 @@ class SearchComponent(context: Context, attrs: AttributeSet ) : ConstraintLayout
         inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
     }
 
-    private fun showItemDetail(movieModel: MovieModel) {
-        var fragmentManager = (this.context as FragmentActivity).supportFragmentManager
-        MovieDetailDialog(movieModel).show(fragmentManager, "MovieDetailDialog")
+    private fun showItemDetail(movieModel: MovieModel, dataService: DataService) {
+        val fragmentManager = (this.context as FragmentActivity).supportFragmentManager
+        MovieDetailDialog(movieModel, dataService).show(fragmentManager, "MovieDetailDialog")
     }
-
 }
 

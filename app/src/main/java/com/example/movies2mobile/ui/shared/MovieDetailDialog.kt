@@ -8,11 +8,13 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.example.movies2mobile.R
+import com.example.movies2mobile.data.DataService
 import com.example.movies2mobile.models.MovieModel
 
-class MovieDetailDialog(movieModel: MovieModel): DialogFragment() {
+class MovieDetailDialog(movieModel: MovieModel, dataService: DataService): DialogFragment() {
 
     val _movieModel = movieModel
+    val _dataService = dataService
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
@@ -28,7 +30,7 @@ class MovieDetailDialog(movieModel: MovieModel): DialogFragment() {
 
         txtDetailHeader?.text = _movieModel.title
         txtDetail?.text = _movieModel.description
-        txtActors.text = "Actors Placeholder"
+        txtActors.text = getActorSummary(_movieModel)
 
         btnClose.setOnClickListener {
             dialog?.dismiss()
@@ -41,5 +43,14 @@ class MovieDetailDialog(movieModel: MovieModel): DialogFragment() {
         super.onStart()
         val width = (resources.displayMetrics.widthPixels * 0.85).toInt()
         dialog!!.window?.setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
+    }
+
+    private fun getActorSummary(movieModel: MovieModel) : String? {
+        var actorSummary = ""
+        if(movieModel.actors != null){
+            var actors = _dataService.getActorsByIds(movieModel.actors.map { a -> a.id})
+            actorSummary = actors?.joinToString { a -> "${a.firstName} ${a.lastName}" }.toString()
+        }
+        return actorSummary
     }
 }

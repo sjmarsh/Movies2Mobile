@@ -2,6 +2,7 @@ package com.example.movies2mobile.data
 
 import android.os.Environment
 import android.util.Log
+import com.example.movies2mobile.models.ActorModel
 import com.example.movies2mobile.models.ImportModel
 import com.example.movies2mobile.models.MovieModel
 import com.fasterxml.jackson.databind.MapperFeature
@@ -33,15 +34,16 @@ class DataService(private val dataFilePath: String) {
 
     fun searchConcerts(title: String?): List<MovieModel> {
         if(title.isNullOrEmpty()){
-            //return importData?.concerts?.sortedBy { m -> m.title } ?: listOf()
-            var x = importData?.concerts?.sortedBy { m -> m.title } ?: listOf()
-            return x
-
+            return importData?.concerts?.sortedBy { m -> m.title } ?: listOf()
         }
 
         return importData?.concerts?.filter { m -> m.title == null || m.title.contains(title, true) }?.toList()
             ?.sortedBy { m -> m.title }
             ?: listOf()
+    }
+
+    fun getActorsByIds(actorIds: List<Int?>): List<ActorModel>? {
+        return importData?.actors?.filter { a -> actorIds.contains(a.id) }
     }
 
     private fun getAllData(): ImportModel {
@@ -55,7 +57,7 @@ class DataService(private val dataFilePath: String) {
             if (moviesFile.exists()) {
                 try {
                     val objectMapper = jacksonObjectMapper()
-                    objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+                    objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
                     val moviesJson = moviesFile.readText()
                     data = objectMapper.readValue(moviesJson)
                 } catch (e: Exception) {

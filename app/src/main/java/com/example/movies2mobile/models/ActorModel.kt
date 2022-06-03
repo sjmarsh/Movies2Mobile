@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import java.util.*
 
 class ActorModel (
-    val id: Int?,
+    id: Int?,
     val firstName: String?,
     val lastName: String?,
     val sex: String?,
@@ -13,4 +13,4 @@ class ActorModel (
     val photo: String?,
     @JsonIgnore
     val fullName: String?
-)
+) : ModelBase(id)
