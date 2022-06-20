@@ -5,11 +5,12 @@ import com.example.movies2mobile.data.DataService
 import com.example.movies2mobile.models.MovieModel
 
 class SearchViewModel(dataService: DataService) {
-    private final val _dataService: DataService = dataService
+    private val _dataService: DataService = dataService
 
     var searchText : String = ""
     var searchContext: SearchContext? = SearchContext.MOVIE
     var searchResults = listOf<MovieModel>()
+    var hasSearchResults : Boolean = searchResults.isNotEmpty()
 
     fun search() {
         when(searchContext) {

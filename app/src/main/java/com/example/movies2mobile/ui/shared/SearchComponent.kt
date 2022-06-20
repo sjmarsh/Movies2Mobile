@@ -1,12 +1,7 @@
 package com.example.movies2mobile.ui.shared
 
-import android.app.Activity
 import android.content.Context
 import android.util.AttributeSet
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
-import android.widget.ImageButton
-import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,9 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.movies2mobile.R
 import com.example.movies2mobile.data.DataService
 import com.example.movies2mobile.models.MovieModel
-import com.example.movies2mobile.ui.extensions.setOnRightDrawableClicked
 
 class SearchComponent(context: Context, attrs: AttributeSet ) : ConstraintLayout(context, attrs) {
+
+    private val _searchContext: SearchContext?
 
     init {
         inflate(context, R.layout.search_component, this)
@@ -26,34 +22,33 @@ class SearchComponent(context: Context, attrs: AttributeSet ) : ConstraintLayout
             lstSearchResults.layoutManager = LinearLayoutManager(this.context)
         }
 
-        val txtSearchText = findViewById<TextView>(R.id.txtSearch)
-        val btnSearch = findViewById<ImageButton>(R.id.btnSearch)
-        val searchContext = getSearchContext(context, attrs)
+        _searchContext = getSearchContext(context, attrs)
 
-        if(txtSearchText != null && btnSearch != null){
+        search("")
+    }
 
-            search(txtSearchText, lstSearchResults, searchContext)
+    fun search(query: String) : Boolean {
 
-            btnSearch.setOnClickListener {
-                search(txtSearchText, lstSearchResults, searchContext)
-            }
+        val dataService = DataService(this.context.filesDir.path)
 
-            txtSearchText.setOnEditorActionListener { _, actionId, _ ->
-                when(actionId){
-                    EditorInfo.IME_ACTION_SEARCH -> {
-                        search(txtSearchText, lstSearchResults, searchContext)
-                        true
-                    }
-                    else -> false
-                }
-            }
+        val searchViewModel = SearchViewModel(dataService)
+        searchViewModel.searchText = query
+        searchViewModel.searchContext = _searchContext
+        searchViewModel.search()
 
-            //clear search
-            txtSearchText.setOnRightDrawableClicked {
-                it.text = ""
-                search(txtSearchText, lstSearchResults, searchContext)
-            }
+        val searchRecyclerAdapter = SearchRecyclerAdapter { searchResult ->
+            showItemDetail(searchResult, dataService)
         }
+
+        val lstSearchResults = findViewById<RecyclerView>(R.id.lstSearchResults)
+        if(lstSearchResults != null) {
+            lstSearchResults.layoutManager = LinearLayoutManager(this.context)
+        }
+
+        lstSearchResults.adapter = searchRecyclerAdapter
+        searchRecyclerAdapter.setSearchContext(_searchContext)
+        searchRecyclerAdapter.setSearchResults(searchViewModel.searchResults)
+        return searchViewModel.hasSearchResults
     }
 
     private fun getSearchContext(context: Context, attrs: AttributeSet): SearchContext? {
@@ -66,29 +61,6 @@ class SearchComponent(context: Context, attrs: AttributeSet ) : ConstraintLayout
             customAttributesStyle.recycle()
         }
         return searchContext
-    }
-
-    private fun search(txtSearchText: TextView, lstSearchResults: RecyclerView, searchContext: SearchContext?) {
-        val dataService = DataService(this.context.filesDir.path)
-        val viewModel = SearchViewModel(dataService)
-        viewModel.searchText = txtSearchText.text.toString()
-        viewModel.searchContext = searchContext
-        viewModel.search()
-
-        val searchRecyclerAdapter = SearchRecyclerAdapter { searchResult ->
-            showItemDetail(searchResult, dataService)
-        }
-
-        lstSearchResults.adapter = searchRecyclerAdapter
-        searchRecyclerAdapter.setSearchContext(searchContext)
-        searchRecyclerAdapter.setSearchResults(viewModel.searchResults)
-
-        hideSoftKeyboard()
-    }
-
-    private fun hideSoftKeyboard() {
-        val inputMethodManager = this.context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
     }
 
     private fun showItemDetail(movieModel: MovieModel, dataService: DataService) {

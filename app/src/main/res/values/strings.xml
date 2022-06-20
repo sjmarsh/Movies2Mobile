@@ -6,4 +6,5 @@
     <string name="search">Search</string>
     <string name="select_movie_data">Select Movie Data File</string>
     <string name="close">CLOSE</string>
+    <string name="filter">Filter</string>
 </resources>

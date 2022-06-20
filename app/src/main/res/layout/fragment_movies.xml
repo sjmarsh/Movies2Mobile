@@ -9,8 +9,10 @@
     tools:context=".ui.movies.MovieFragment">
 
     <com.example.movies2mobile.ui.shared.SearchComponent
+        android:id="@+id/movies_search_component"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:searchContext="MOVIE" />
+        app:searchContext="MOVIE" >
+    </com.example.movies2mobile.ui.shared.SearchComponent>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
