@@ -27,12 +27,13 @@ class SearchComponent(context: Context, attrs: AttributeSet ) : ConstraintLayout
         search("")
     }
 
-    fun search(query: String) : Boolean {
+    fun search(query: String?, categoryFilter: String? = null) : Boolean {
 
-        val dataService = DataService(this.context.filesDir.path)
+        val dataService = DataService(this.context.filesDir.path) // TODO dependency injection
 
         val searchViewModel = SearchViewModel(dataService)
         searchViewModel.searchText = query
+        searchViewModel.categoryFilter = categoryFilter
         searchViewModel.searchContext = _searchContext
         searchViewModel.search()
 

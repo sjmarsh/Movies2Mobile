@@ -22,12 +22,16 @@ class DataService(private val dataFilePath: String) {
         }
     }
 
-    fun searchMovies(title: String?): List<MovieModel> {
-        if(title.isNullOrEmpty()){
+    fun searchMovies(title: String?, category: String?): List<MovieModel> {
+        if(title.isNullOrEmpty() && category.isNullOrEmpty()){
             return importData?.movies?.sortedBy { m -> m.title } ?: listOf()
         }
 
-        return importData?.movies?.filter { m -> m.title == null || m.title.contains(title, true) }?.toList()
+        return importData?.movies?.filter {
+                m -> (title == null || m.title!!.contains(title, true))
+                    && (category == null || category == "" || m.category == category)
+        }
+            ?.toList()
             ?.sortedBy { m -> m.title }
             ?: listOf()
     }
@@ -40,6 +44,11 @@ class DataService(private val dataFilePath: String) {
         return importData?.concerts?.filter { m -> m.title == null || m.title.contains(title, true) }?.toList()
             ?.sortedBy { m -> m.title }
             ?: listOf()
+    }
+
+    fun getMovieCategories(): List<String> {
+        val categories = importData?.movies?.mapNotNull { m -> m.category }
+        return categories?.distinct()?.sorted() ?: listOf()
     }
 
     fun getActorsByIds(actorIds: List<Int?>): List<ActorModel>? {

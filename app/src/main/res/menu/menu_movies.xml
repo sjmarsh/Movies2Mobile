@@ -13,6 +13,8 @@
         android:icon="@drawable/ic_filter_white_24dp"
         app:showAsAction="ifRoom"
         android:title="@string/filter">
+        <menu>
+        </menu>
     </item>
 
     <!-- Settings, should always be in the overflow -->

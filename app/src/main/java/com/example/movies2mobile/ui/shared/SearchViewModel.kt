@@ -7,14 +7,16 @@ import com.example.movies2mobile.models.MovieModel
 class SearchViewModel(dataService: DataService) {
     private val _dataService: DataService = dataService
 
-    var searchText : String = ""
+    var searchText : String? = ""
+    var categoryFilter: String? = null // TODO make this generic
     var searchContext: SearchContext? = SearchContext.MOVIE
-    var searchResults = listOf<MovieModel>()
+    var searchResults = listOf<MovieModel>()  // TODO make this more generic
     var hasSearchResults : Boolean = searchResults.isNotEmpty()
 
     fun search() {
         when(searchContext) {
-            SearchContext.MOVIE -> searchResults = _dataService.searchMovies(searchText)
+            // TODO make this more generic
+            SearchContext.MOVIE -> searchResults = _dataService.searchMovies(searchText, categoryFilter)
             SearchContext.CONCERT -> searchResults = _dataService.searchConcerts(searchText)
             else -> { Log.e("SearchViewModel","Search Context not supported")}
         }
