@@ -12,10 +12,10 @@
         tools:layout="@layout/fragment_movies" />
 
     <fragment
-        android:id="@+id/navigation_concerts"
-        android:name="com.example.movies2mobile.ui.concerts.ConcertFragment"
-        android:label="@string/title_concerts"
-        tools:layout="@layout/fragment_concerts" />
+        android:id="@+id/navigation_actors"
+        android:name="com.example.movies2mobile.ui.actors.ActorFragment"
+        android:label="@string/title_actors"
+        tools:layout="@layout/fragment_actors" />
 
     <fragment
         android:id="@+id/navigation_settings"

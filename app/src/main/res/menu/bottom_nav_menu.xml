@@ -7,9 +7,9 @@
         android:title="@string/title_movies" />
 
     <item
-        android:id="@+id/navigation_concerts"
-        android:icon="@drawable/ic_library_music_black_24"
-        android:title="@string/title_concerts" />
+        android:id="@+id/navigation_actors"
+        android:icon="@drawable/ic_person_black_24"
+        android:title="@string/title_actors" />
 
     <item
         android:id="@+id/navigation_settings"

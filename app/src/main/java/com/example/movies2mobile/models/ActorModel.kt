@@ -11,6 +11,5 @@ class ActorModel (
     val dateOfBirth: Date?,
     @JsonIgnore
     val photo: String?,
-    @JsonIgnore
     val fullName: String?
 ) : ModelBase(id)

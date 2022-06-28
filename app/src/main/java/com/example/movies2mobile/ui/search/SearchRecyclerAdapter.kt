@@ -1,25 +1,27 @@
 package com.example.movies2mobile.ui.search
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.movies2mobile.R
+import com.example.movies2mobile.models.ActorModel
+import com.example.movies2mobile.models.ModelBase
 import com.example.movies2mobile.models.MovieModel
+import com.example.movies2mobile.ui.extensions.toDisplayDate
 
-class SearchRecyclerAdapter(private val onItemClicked: (MovieModel) -> Unit)
+class SearchRecyclerAdapter(private val onItemClicked: (ModelBase) -> Unit)
     : RecyclerView.Adapter<SearchRecyclerAdapter.ViewHolder>(){
 
     private var _searchContext: SearchContext? = SearchContext.MOVIE
-    private var _searchResults: List<MovieModel> = listOf() // todo add to constructor or public prop?
+    private var _searchResults: List<ModelBase> = listOf() // todo add to constructor or public prop?
 
     fun setSearchContext(searchContext: SearchContext?) {
         _searchContext = searchContext
     }
 
-    fun setSearchResults(searchResults: List<MovieModel>) {
+    fun setSearchResults(searchResults: List<ModelBase>) {
         _searchResults = searchResults
     }
 
@@ -47,18 +49,17 @@ class SearchRecyclerAdapter(private val onItemClicked: (MovieModel) -> Unit)
             itemView.setOnClickListener { onItemClicked(absoluteAdapterPosition) }
         }
 
-        fun bind(movieModel: MovieModel) {
-            title.setText(movieModel.title)
-            detail.setText(getDetail(movieModel, _searchContext))
+        fun bind(model: ModelBase) {
+            // TODO - do this better (ie. adapter or provide pattern externally)
+            if(model is MovieModel) {
+                title.text = model.title
+                detail.text = "${model.category} - ${model.releaseYear} - ${model.runningTime} - ${model.format}"
+            }
+            if(model is ActorModel) {
+                title.text = model.fullName
+                detail.text = "${model.sex} - ${model.dateOfBirth?.toDisplayDate()}"
+            }
         }
 
-        private fun getDetail(movieModel: MovieModel, searchContext: SearchContext?): String {
-            when(searchContext) {
-                SearchContext.MOVIE -> return "${movieModel.category} - ${movieModel.releaseYear} - ${movieModel.runningTime} - ${movieModel.format}"
-                SearchContext.CONCERT -> return "${movieModel.releaseYear} - ${movieModel.runningTime} - ${movieModel.format}"
-                else -> { Log.e("SearchRecycler","Search Context not supported")}
-            }
-            return ""
-        }
     }
 }

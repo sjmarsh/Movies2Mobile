@@ -13,7 +13,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import java.io.File
 import java.io.IOException
 
-//class DataService(private val dataFilePath: String) : IDataService {
 class DataService(private val context: Context) : IDataService {
 
     private var dataFilePath: String = ""
@@ -21,14 +20,14 @@ class DataService(private val context: Context) : IDataService {
 
     init {
         dataFilePath = context.filesDir.path
-        if(importData == null){
+        if(importData == null) {
             importData = getAllData()
         }
     }
 
     override fun searchMovies(title: String?, category: String?): List<MovieModel> {
         if(title.isNullOrEmpty() && category.isNullOrEmpty()){
-            return importData?.movies?.sortedBy { m -> m.title } ?: listOf()
+            return importData?.movies?.sortedBy { m -> m.title }!!
         }
 
         return importData?.movies?.filter {
@@ -40,14 +39,14 @@ class DataService(private val context: Context) : IDataService {
             ?: listOf()
     }
 
-    override fun searchConcerts(title: String?): List<MovieModel> {
-        if(title.isNullOrEmpty()){
-            return importData?.concerts?.sortedBy { m -> m.title } ?: listOf()
+    override fun searchActors(name: String?): List<ActorModel> {
+        if(name.isNullOrEmpty()){
+            return importData?.actors?.sortedBy { a -> a.lastName }!!
         }
 
-        return importData?.concerts?.filter { m -> m.title == null || m.title.contains(title, true) }?.toList()
-            ?.sortedBy { m -> m.title }
-            ?: listOf()
+        return importData?.actors?.filter { a -> ((a.fullName != null && a.fullName.contains(name))) }
+            ?.toList()
+            ?.sortedBy { a -> a.lastName }!!
     }
 
     override fun getMovieCategories(): List<String> {
@@ -57,6 +56,10 @@ class DataService(private val context: Context) : IDataService {
 
     override fun getActorsByIds(actorIds: List<Int?>): List<ActorModel>? {
         return importData?.actors?.filter { a -> actorIds.contains(a.id) }
+    }
+
+    override fun getMoviesByActorId(actorId: Int?): List<MovieModel>? {
+        return importData?.movies?.filter { m -> m.actors != null && m.actors.find { a -> a.id == actorId } != null }
     }
 
     private fun getAllData(): ImportModel {
@@ -88,7 +91,7 @@ class DataService(private val context: Context) : IDataService {
             }
         }
 
-        return data?: ImportModel(listOf(), listOf(), listOf())
+        return data?: ImportModel(listOf(), listOf())
     }
 
     private val isExternalStorageAvailable: Boolean get() {

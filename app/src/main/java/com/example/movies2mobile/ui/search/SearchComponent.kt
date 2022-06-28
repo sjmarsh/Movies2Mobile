@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.movies2mobile.R
 import com.example.movies2mobile.data.IDataService
-import com.example.movies2mobile.models.MovieModel
+import com.example.movies2mobile.models.ModelBase
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -66,9 +66,9 @@ class SearchComponent(context: Context, attrs: AttributeSet) : ConstraintLayout(
         return searchContext
     }
 
-    private fun showItemDetail(movieModel: MovieModel, dataService: IDataService) {
+    private fun showItemDetail(model: ModelBase, dataService: IDataService) {
         val fragmentManager = (this.context as FragmentActivity).supportFragmentManager
-        MovieDetailDialog(movieModel, dataService).show(fragmentManager, "MovieDetailDialog")
+        SearchResultDetailDialog(model, dataService).show(fragmentManager, "SearchResultDetailDialog")
     }
 }
 

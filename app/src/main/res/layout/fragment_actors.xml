@@ -4,11 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.concerts.ConcertFragment">
+    tools:context=".ui.actors.ActorFragment">
 
     <com.example.movies2mobile.ui.search.SearchComponent
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:searchContext="CONCERT" />
+        app:searchContext="ACTOR" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

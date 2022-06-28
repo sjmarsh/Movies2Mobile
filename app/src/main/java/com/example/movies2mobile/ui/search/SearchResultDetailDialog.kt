@@ -9,11 +9,14 @@ import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.example.movies2mobile.R
 import com.example.movies2mobile.data.IDataService
+import com.example.movies2mobile.models.ActorModel
+import com.example.movies2mobile.models.ModelBase
 import com.example.movies2mobile.models.MovieModel
+import com.example.movies2mobile.ui.extensions.toDisplayDate
 
-class MovieDetailDialog(movieModel: MovieModel, dataService: IDataService): DialogFragment() {
+class SearchResultDetailDialog(model: ModelBase, dataService: IDataService): DialogFragment() {
 
-    val _movieModel = movieModel
+    val _model = model
     val _dataService = dataService
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -21,16 +24,23 @@ class MovieDetailDialog(movieModel: MovieModel, dataService: IDataService): Dial
         // include this if round corners required
         //dialog!!.window?.setBackgroundDrawableResource(R.drawable.round_corner)
 
-        val view = inflater.inflate(R.layout.dialog_movie_detail, container, false)
+        val view = inflater.inflate(R.layout.dialog_search_result_detail, container, false)
 
         val txtDetailHeader = view.findViewById<TextView>(R.id.txtDetailHeader)
         val txtDetail = view.findViewById<TextView>(R.id.txtDetail)
-        val txtActors = view.findViewById<TextView>(R.id.txtActors)
+        val txtDetailItems = view.findViewById<TextView>(R.id.txtDetailItems)
         val btnClose = view.findViewById<Button>(R.id.btnCloseMovieDetail)
 
-        txtDetailHeader?.text = _movieModel.title
-        txtDetail?.text = _movieModel.description
-        txtActors.text = getActorSummary(_movieModel)
+        if(_model is MovieModel){
+            txtDetailHeader?.text = _model.title
+            txtDetail?.text = _model.description
+            txtDetailItems.text = getActorSummary(_model)
+        }
+        if(_model is ActorModel){
+            txtDetailHeader?.text = _model.fullName
+            txtDetail?.text = "${_model.sex} - ${_model.dateOfBirth?.toDisplayDate()}"
+            txtDetailItems.text = getMovieSummary(_model)
+        }
 
         btnClose.setOnClickListener {
             dialog?.dismiss()
@@ -45,12 +55,17 @@ class MovieDetailDialog(movieModel: MovieModel, dataService: IDataService): Dial
         dialog!!.window?.setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
     }
 
-    private fun getActorSummary(movieModel: MovieModel) : String? {
+    private fun getActorSummary(movieModel: MovieModel) : String {
         var actorSummary = ""
         if(movieModel.actors != null){
-            var actors = _dataService.getActorsByIds(movieModel.actors.map { a -> a.id})
+            val actors = _dataService.getActorsByIds(movieModel.actors.map { a -> a.id})
             actorSummary = actors?.joinToString { a -> "${a.firstName} ${a.lastName}" }.toString()
         }
         return actorSummary
+    }
+
+    private fun getMovieSummary(actorModel: ActorModel) : String {
+        val movies = _dataService.getMoviesByActorId(actorModel.id)
+        return movies?.joinToString { m -> "${m.title}" }.toString()
     }
 }
