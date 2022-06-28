@@ -38,7 +38,7 @@ class SearchResultDetailDialog(model: ModelBase, dataService: IDataService): Dia
         }
         if(_model is ActorModel){
             txtDetailHeader?.text = _model.fullName
-            txtDetail?.text = "${_model.sex} - ${_model.dateOfBirth?.toDisplayDate()}"
+            txtDetail?.text = "${_model.sex} - ${_model.dateOfBirth.toDisplayDate()}"
             txtDetailItems.text = getMovieSummary(_model)
         }
 

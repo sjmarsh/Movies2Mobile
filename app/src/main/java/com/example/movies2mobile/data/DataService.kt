@@ -44,7 +44,7 @@ class DataService(private val context: Context) : IDataService {
             return importData?.actors?.sortedBy { a -> a.lastName }!!
         }
 
-        return importData?.actors?.filter { a -> ((a.fullName != null && a.fullName.contains(name))) }
+        return importData?.actors?.filter { a -> ((a.fullName != null && a.fullName.lowercase().contains(name.lowercase()))) }
             ?.toList()
             ?.sortedBy { a -> a.lastName }!!
     }

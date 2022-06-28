@@ -71,7 +71,6 @@ class MovieFragment : Fragment() {
     }
 
     private fun search() : Boolean {
-
         val searchComponent = binding.moviesSearchComponent
         return searchComponent.search(_query, _categoryFilter)
     }

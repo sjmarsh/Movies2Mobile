@@ -57,7 +57,7 @@ class SearchRecyclerAdapter(private val onItemClicked: (ModelBase) -> Unit)
             }
             if(model is ActorModel) {
                 title.text = model.fullName
-                detail.text = "${model.sex} - ${model.dateOfBirth?.toDisplayDate()}"
+                detail.text = "${model.sex} - ${model.dateOfBirth.toDisplayDate()}"
             }
         }
 
