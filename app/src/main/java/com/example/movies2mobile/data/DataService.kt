@@ -1,5 +1,6 @@
 package com.example.movies2mobile.data
 
+import android.content.Context
 import android.os.Environment
 import android.util.Log
 import com.example.movies2mobile.models.ActorModel
@@ -12,17 +13,20 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import java.io.File
 import java.io.IOException
 
-class DataService(private val dataFilePath: String) {
+//class DataService(private val dataFilePath: String) : IDataService {
+class DataService(private val context: Context) : IDataService {
 
+    private var dataFilePath: String = ""
     private var importData: ImportModel? = null
 
     init {
+        dataFilePath = context.filesDir.path
         if(importData == null){
             importData = getAllData()
         }
     }
 
-    fun searchMovies(title: String?, category: String?): List<MovieModel> {
+    override fun searchMovies(title: String?, category: String?): List<MovieModel> {
         if(title.isNullOrEmpty() && category.isNullOrEmpty()){
             return importData?.movies?.sortedBy { m -> m.title } ?: listOf()
         }
@@ -36,7 +40,7 @@ class DataService(private val dataFilePath: String) {
             ?: listOf()
     }
 
-    fun searchConcerts(title: String?): List<MovieModel> {
+    override fun searchConcerts(title: String?): List<MovieModel> {
         if(title.isNullOrEmpty()){
             return importData?.concerts?.sortedBy { m -> m.title } ?: listOf()
         }
@@ -46,12 +50,12 @@ class DataService(private val dataFilePath: String) {
             ?: listOf()
     }
 
-    fun getMovieCategories(): List<String> {
+    override fun getMovieCategories(): List<String> {
         val categories = importData?.movies?.mapNotNull { m -> m.category }
         return categories?.distinct()?.sorted() ?: listOf()
     }
 
-    fun getActorsByIds(actorIds: List<Int?>): List<ActorModel>? {
+    override fun getActorsByIds(actorIds: List<Int?>): List<ActorModel>? {
         return importData?.actors?.filter { a -> actorIds.contains(a.id) }
     }
 

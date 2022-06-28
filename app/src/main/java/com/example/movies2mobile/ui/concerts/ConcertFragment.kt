@@ -1,17 +1,11 @@
 package com.example.movies2mobile.ui.concerts
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.movies2mobile.data.DataService
 import com.example.movies2mobile.databinding.FragmentConcertsBinding
-import com.example.movies2mobile.models.MovieModel
 
 class ConcertFragment : Fragment() {
 

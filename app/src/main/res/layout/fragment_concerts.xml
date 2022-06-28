@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".ui.concerts.ConcertFragment">
 
-    <com.example.movies2mobile.ui.shared.SearchComponent
+    <com.example.movies2mobile.ui.search.SearchComponent
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:searchContext="CONCERT" />

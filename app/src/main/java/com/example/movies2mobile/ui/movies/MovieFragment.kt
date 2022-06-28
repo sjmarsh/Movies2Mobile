@@ -6,10 +6,13 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import com.example.movies2mobile.MainActivity
 import com.example.movies2mobile.R
-import com.example.movies2mobile.data.DataService
+import com.example.movies2mobile.data.IDataService
 import com.example.movies2mobile.databinding.FragmentMoviesBinding
+import org.koin.android.ext.android.inject
 
 class MovieFragment : Fragment() {
+
+    val dataService: IDataService by inject()
 
     private var _query: String? = null
     private var _categoryFilter: String? = null
@@ -19,8 +22,6 @@ class MovieFragment : Fragment() {
     // onDestroyView.
     private var _binding: FragmentMoviesBinding? = null
     private val binding get() = _binding!!
-    private var _dataService: DataService? = null
-    private val dataService get() = _dataService!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,7 +29,6 @@ class MovieFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _dataService = DataService(context?.filesDir?.path ?: "") // TODO use dependency injection
         _binding = FragmentMoviesBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -96,6 +96,5 @@ class MovieFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        _dataService = null
     }
 }

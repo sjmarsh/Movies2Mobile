@@ -1,4 +1,4 @@
-package com.example.movies2mobile.ui.shared
+package com.example.movies2mobile.ui.search
 
 import android.util.Log
 import android.view.LayoutInflater

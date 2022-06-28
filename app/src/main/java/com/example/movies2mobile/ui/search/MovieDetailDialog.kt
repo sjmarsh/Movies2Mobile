@@ -1,4 +1,4 @@
-package com.example.movies2mobile.ui.shared
+package com.example.movies2mobile.ui.search
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,10 +8,10 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.example.movies2mobile.R
-import com.example.movies2mobile.data.DataService
+import com.example.movies2mobile.data.IDataService
 import com.example.movies2mobile.models.MovieModel
 
-class MovieDetailDialog(movieModel: MovieModel, dataService: DataService): DialogFragment() {
+class MovieDetailDialog(movieModel: MovieModel, dataService: IDataService): DialogFragment() {
 
     val _movieModel = movieModel
     val _dataService = dataService

@@ -1,11 +1,11 @@
-package com.example.movies2mobile.ui.shared
+package com.example.movies2mobile.ui.search
 
 import android.util.Log
-import com.example.movies2mobile.data.DataService
+import com.example.movies2mobile.data.IDataService
 import com.example.movies2mobile.models.MovieModel
 
-class SearchViewModel(dataService: DataService) {
-    private val _dataService: DataService = dataService
+class SearchViewModel(dataService: IDataService) {
+    private val _dataService: IDataService = dataService
 
     var searchText : String? = ""
     var categoryFilter: String? = null // TODO make this generic

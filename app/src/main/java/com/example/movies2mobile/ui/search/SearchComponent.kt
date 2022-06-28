@@ -1,4 +1,4 @@
-package com.example.movies2mobile.ui.shared
+package com.example.movies2mobile.ui.search
 
 import android.content.Context
 import android.util.AttributeSet
@@ -7,11 +7,15 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.movies2mobile.R
-import com.example.movies2mobile.data.DataService
+import com.example.movies2mobile.data.IDataService
 import com.example.movies2mobile.models.MovieModel
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class SearchComponent(context: Context, attrs: AttributeSet ) : ConstraintLayout(context, attrs) {
 
+class SearchComponent(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs), KoinComponent
+{
+    private val _dataService by inject<IDataService>()
     private val _searchContext: SearchContext?
 
     init {
@@ -29,16 +33,14 @@ class SearchComponent(context: Context, attrs: AttributeSet ) : ConstraintLayout
 
     fun search(query: String?, categoryFilter: String? = null) : Boolean {
 
-        val dataService = DataService(this.context.filesDir.path) // TODO dependency injection
-
-        val searchViewModel = SearchViewModel(dataService)
+        val searchViewModel = SearchViewModel(_dataService)
         searchViewModel.searchText = query
         searchViewModel.categoryFilter = categoryFilter
         searchViewModel.searchContext = _searchContext
         searchViewModel.search()
 
         val searchRecyclerAdapter = SearchRecyclerAdapter { searchResult ->
-            showItemDetail(searchResult, dataService)
+            showItemDetail(searchResult, _dataService)
         }
 
         val lstSearchResults = findViewById<RecyclerView>(R.id.lstSearchResults)
@@ -64,7 +66,7 @@ class SearchComponent(context: Context, attrs: AttributeSet ) : ConstraintLayout
         return searchContext
     }
 
-    private fun showItemDetail(movieModel: MovieModel, dataService: DataService) {
+    private fun showItemDetail(movieModel: MovieModel, dataService: IDataService) {
         val fragmentManager = (this.context as FragmentActivity).supportFragmentManager
         MovieDetailDialog(movieModel, dataService).show(fragmentManager, "MovieDetailDialog")
     }
