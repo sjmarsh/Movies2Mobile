@@ -7,8 +7,10 @@ Android app for Movies2 movie collection.  Initially this is just a proof of con
   - ~~Add filtering functionality (filter would include movie categories as well as concerts)~~
   - ~~Some changes would be required to the export json file format of the Movies desktop (web) application~~
 - ~~Add Actors view~~
+- ~~Fix dark mode / power-save mode theme for search result card~~
 - Data loading/searching should be asynchronous
 - Add ability to hyperlink between movies and actors
+- Improve UX around applying filter.  Filter icon should indicate if filter is applied (or  not)
 - Add ability to get movie data from a web service (instead of or as well as json file in file system).  
 - Add unit tests - explore how to do this with Kotlin. Project template includes some samples.
 - Improve architecture to make better use of View Models for view logic.  This should help with unit tests.
