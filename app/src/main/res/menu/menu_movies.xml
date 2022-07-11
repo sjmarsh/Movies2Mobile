@@ -10,7 +10,7 @@
     </item>
     <item
         android:id="@+id/miFilter"
-        android:icon="@drawable/ic_filter_white_24dp"
+        android:icon="@drawable/ic_filter_outline_white_24dp"
         app:showAsAction="ifRoom"
         android:title="@string/filter">
         <menu>

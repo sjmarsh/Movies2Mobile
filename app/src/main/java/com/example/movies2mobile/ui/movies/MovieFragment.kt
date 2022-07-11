@@ -17,6 +17,7 @@ class MovieFragment : Fragment() {
     private var _query: String? = null
     private var _categoryFilter: String? = null
     private var _categories: List<String>? = null
+    private var _filterMenu: MenuItem? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -61,13 +62,16 @@ class MovieFragment : Fragment() {
 
         _categories = dataService.getMovieCategories()
 
-        val filterMenu = menu.findItem(R.id.miFilter)
+        _filterMenu = menu.findItem(R.id.miFilter)
 
-        val groupId = 0
-        for(i in _categories!!.indices) {
-            val itemId = i + 100
-            filterMenu.subMenu.add(groupId, itemId, i, _categories!![i])
+        if(_filterMenu != null){
+            val groupId = 0
+            for(i in _categories!!.indices) {
+                val itemId = i + 100
+                _filterMenu?.subMenu?.add(groupId, itemId, i, _categories!![i])
+            }
         }
+
     }
 
     private fun search() : Boolean {
@@ -77,14 +81,16 @@ class MovieFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        if(_categories!!.contains(item.title.toString())){
+        if(_categories!!.contains(item.title.toString())) {
             _categoryFilter = item.title.toString()
+            ToggleFilterMenuIcon(true)
             search()
             return true
         }
 
         if(item.title == "Filter") {
             _categoryFilter = null
+            ToggleFilterMenuIcon(false)
             search()
             return true
         }
@@ -95,5 +101,16 @@ class MovieFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun ToggleFilterMenuIcon(hasFilter: Boolean){
+        val filledIcon = R.drawable.ic_filter_white_24dp
+        val outlineIcon = R.drawable.ic_filter_outline_white_24dp
+
+        val filterIcon = if(hasFilter) filledIcon else outlineIcon
+
+        if(_filterMenu != null){
+            _filterMenu?.setIcon(filterIcon)
+        }
     }
 }
