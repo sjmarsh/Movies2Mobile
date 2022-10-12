@@ -6,13 +6,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
+import androidx.navigation.fragment.findNavController
 import com.example.movies2mobile.R
 import com.example.movies2mobile.data.IDataService
 import com.example.movies2mobile.models.ActorModel
 import com.example.movies2mobile.models.ModelBase
 import com.example.movies2mobile.models.MovieModel
 import com.example.movies2mobile.ui.extensions.toDisplayDate
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 
 class SearchResultDetailDialog(model: ModelBase, dataService: IDataService): DialogFragment() {
 
@@ -28,18 +32,18 @@ class SearchResultDetailDialog(model: ModelBase, dataService: IDataService): Dia
 
         val txtDetailHeader = view.findViewById<TextView>(R.id.txtDetailHeader)
         val txtDetail = view.findViewById<TextView>(R.id.txtDetail)
-        val txtDetailItems = view.findViewById<TextView>(R.id.txtDetailItems)
+        val cgDetailItems = view.findViewById<ChipGroup>(R.id.cgDetailItems)
         val btnClose = view.findViewById<Button>(R.id.btnCloseMovieDetail)
 
         if(_model is MovieModel){
             txtDetailHeader?.text = _model.title
             txtDetail?.text = _model.description
-            txtDetailItems.text = getActorSummary(_model)
+            addActorSummaries(cgDetailItems, _model)
         }
         if(_model is ActorModel){
             txtDetailHeader?.text = _model.fullName
             txtDetail?.text = "${_model.sex} - ${_model.dateOfBirth.toDisplayDate()}"
-            txtDetailItems.text = getMovieSummary(_model)
+            addMovieSummaries(cgDetailItems, _model)
         }
 
         btnClose.setOnClickListener {
@@ -55,17 +59,29 @@ class SearchResultDetailDialog(model: ModelBase, dataService: IDataService): Dia
         dialog!!.window?.setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
     }
 
-    private fun getActorSummary(movieModel: MovieModel) : String {
-        var actorSummary = ""
+    private fun addActorSummaries(cgDetailItems: ChipGroup, movieModel: MovieModel) {
         if(movieModel.actors != null){
             val actors = _dataService.getActorsByIds(movieModel.actors.map { a -> a.id})
-            actorSummary = actors?.joinToString { a -> "${a.firstName} ${a.lastName}" }.toString()
+            actors?.forEach {
+                addChipToChipGroup(cgDetailItems, it.fullName, it.id, R.id.navigation_actors)
+            }
         }
-        return actorSummary
     }
 
-    private fun getMovieSummary(actorModel: ActorModel) : String {
+    private fun addMovieSummaries(cgDetailItems: ChipGroup, actorModel: ActorModel) {
         val movies = _dataService.getMoviesByActorId(actorModel.id)
-        return movies?.joinToString { m -> "${m.title}" }.toString()
+        movies?.forEach{
+            addChipToChipGroup(cgDetailItems, it.title, it.id, R.id.navigation_movies)
+        }
+    }
+
+    private fun addChipToChipGroup(cgDetailItems: ChipGroup, chipTitle: String?, id: Int?, navigationResourceId: Int) {
+        val chip = Chip(context)
+        chip.text = chipTitle
+        chip.setOnClickListener { _ ->
+            dialog?.dismiss()
+            findNavController().navigate(navigationResourceId, bundleOf("id" to id))
+        }
+        cgDetailItems.addView(chip)
     }
 }

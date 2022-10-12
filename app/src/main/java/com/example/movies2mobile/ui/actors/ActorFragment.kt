@@ -1,6 +1,7 @@
 package com.example.movies2mobile.ui.actors
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
@@ -9,10 +10,6 @@ import com.example.movies2mobile.R
 import com.example.movies2mobile.databinding.FragmentActorsBinding
 
 class ActorFragment : Fragment() {
-
-    private var _query: String? = null
-
-
     // This property is only valid between onCreateView and
     // onDestroyView.
     private var _binding: FragmentActorsBinding? = null
@@ -44,22 +41,29 @@ class ActorFragment : Fragment() {
 
         searchView?.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                _query = query
-                return search()
+                return search(query)
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                _query = newText
-                return search()
+                return search(newText)
             }
         })
     }
 
-    private fun search() : Boolean {
+    private fun search(query: String?) : Boolean {
+        var id = arguments?.getInt("id", 0)
+        if(id != null && id > 0 && (query == null || query.isEmpty())){
+            // id is passed as an argument when navigating from a detail dialog
+            return searchById(id)
+        }
         val searchComponent = binding.actorsSearchComponent
-        return searchComponent.search(_query)
+        return searchComponent.search(query)
     }
 
+    private fun searchById(id: Int?) : Boolean {
+        val searchComponent = binding.actorsSearchComponent
+        return searchComponent.searchById(id)
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

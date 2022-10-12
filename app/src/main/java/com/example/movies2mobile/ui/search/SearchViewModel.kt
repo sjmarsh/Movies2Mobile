@@ -21,4 +21,12 @@ class SearchViewModel(dataService: IDataService) {
             else -> { Log.e("SearchViewModel","Search Context not supported")}
         }
     }
+
+    fun searchById(id: Int?){
+        when(searchContext) {
+            SearchContext.MOVIE -> searchResults = _dataService.getMoviesByMovieId(id)!!
+            SearchContext.ACTOR -> searchResults = _dataService.getActorsById(id)!!
+            else -> { Log.e("SearchViewModel","Search Context not supported")}
+        }
+    }
 }

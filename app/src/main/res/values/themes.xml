@@ -13,5 +13,11 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
         <item name="cardBackgroundColor">@color/cardview_light_background</item>
+        <item name="chipStyle">@style/Movies2Mobile.Chip</item>
+    </style>
+    <style name="Movies2Mobile.Chip" parent="Widget.MaterialComponents.Chip.Entry">
+        <item name="chipMinHeight">18dp</item>
+        <item name="chipMinTouchTargetSize">18dp</item>
+        <item name="closeIconVisible">false</item>
     </style>
 </resources>

@@ -54,12 +54,20 @@ class DataService(private val context: Context) : IDataService {
         return categories?.distinct()?.sorted() ?: listOf()
     }
 
+    override fun getActorsById(actorId: Int?): List<ActorModel>? {
+        return importData?.actors?.filter { a -> a.id == actorId }
+    }
+
     override fun getActorsByIds(actorIds: List<Int?>): List<ActorModel>? {
         return importData?.actors?.filter { a -> actorIds.contains(a.id) }
     }
 
     override fun getMoviesByActorId(actorId: Int?): List<MovieModel>? {
         return importData?.movies?.filter { m -> m.actors != null && m.actors.find { a -> a.id == actorId } != null }
+    }
+
+    override fun getMoviesByMovieId(movieId: Int?): List<MovieModel>? {
+        return importData?.movies?.filter { m -> m.id == movieId }
     }
 
     private fun getAllData(): ImportModel {

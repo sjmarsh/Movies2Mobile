@@ -14,7 +14,6 @@ class MovieFragment : Fragment() {
 
     val dataService: IDataService by inject()
 
-    private var _query: String? = null
     private var _categoryFilter: String? = null
     private var _categories: List<String>? = null
     private var _filterMenu: MenuItem? = null
@@ -50,13 +49,11 @@ class MovieFragment : Fragment() {
 
         searchView?.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                _query = query
-                return search()
+                return search(query)
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                _query = newText
-                return search()
+                return search(newText)
             }
         })
 
@@ -74,9 +71,18 @@ class MovieFragment : Fragment() {
 
     }
 
-    private fun search() : Boolean {
+    private fun search(query: String?) : Boolean {
+        var id = arguments?.getInt("id", 0)
+        if(id != null && id > 0 && (query == null || query.isEmpty())){
+            return searchById(id)
+        }
         val searchComponent = binding.moviesSearchComponent
-        return searchComponent.search(_query, _categoryFilter)
+        return searchComponent.search(query, _categoryFilter)
+    }
+
+    private fun searchById(id: Int?) : Boolean {
+        val searchComponent = binding.moviesSearchComponent
+        return searchComponent.searchById(id)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -84,14 +90,14 @@ class MovieFragment : Fragment() {
         if(_categories!!.contains(item.title.toString())) {
             _categoryFilter = item.title.toString()
             ToggleFilterMenuIcon(true)
-            search()
+            search("")
             return true
         }
 
         if(item.title == "Filter") {
             _categoryFilter = null
             ToggleFilterMenuIcon(false)
-            search()
+            search("")
             return true
         }
 

@@ -25,15 +25,17 @@
         android:layout_marginRight="16dp"
         android:layout_marginBottom="6dp" />
 
-    <TextView
-        android:id="@+id/txtDetailItems"
-        android:textStyle="italic"
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/cgDetailItems"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginBottom="6dp" />
+        android:layout_marginBottom="6dp"
+        app:chipSpacingHorizontal="1dp"
+        app:chipSpacingVertical="2dp"
+         />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -51,6 +53,7 @@
             android:text="@string/close"
             android:textColor="@color/design_default_color_primary"
             app:layout_constraintRight_toRightOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.appcompat.widget.LinearLayoutCompat>

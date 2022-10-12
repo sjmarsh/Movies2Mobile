@@ -38,20 +38,31 @@ class SearchComponent(context: Context, attrs: AttributeSet) : ConstraintLayout(
         searchViewModel.categoryFilter = categoryFilter
         searchViewModel.searchContext = _searchContext
         searchViewModel.search()
+        UpdateSearchResults(searchViewModel)
+        return searchViewModel.hasSearchResults
+    }
 
+    fun searchById(id: Int?) : Boolean {
+        val searchViewModel = SearchViewModel(_dataService)
+        searchViewModel.searchContext = _searchContext
+        searchViewModel.searchById(id)
+        UpdateSearchResults(searchViewModel)
+        return searchViewModel.hasSearchResults
+    }
+
+    private fun UpdateSearchResults(searchViewModel: SearchViewModel) {
         val searchRecyclerAdapter = SearchRecyclerAdapter { searchResult ->
             showItemDetail(searchResult, _dataService)
         }
 
         val lstSearchResults = findViewById<RecyclerView>(R.id.lstSearchResults)
-        if(lstSearchResults != null) {
+        if (lstSearchResults != null) {
             lstSearchResults.layoutManager = LinearLayoutManager(this.context)
         }
 
         lstSearchResults.adapter = searchRecyclerAdapter
         searchRecyclerAdapter.setSearchContext(_searchContext)
         searchRecyclerAdapter.setSearchResults(searchViewModel.searchResults)
-        return searchViewModel.hasSearchResults
     }
 
     private fun getSearchContext(context: Context, attrs: AttributeSet): SearchContext? {

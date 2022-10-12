@@ -9,13 +9,23 @@
         android:id="@+id/navigation_movies"
         android:name="com.example.movies2mobile.ui.movies.MovieFragment"
         android:label="@string/title_movies"
-        tools:layout="@layout/fragment_movies" />
+        tools:layout="@layout/fragment_movies">
+        <argument
+            android:name="id"
+            app:argType="integer"
+            android:defaultValue="0"/>
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_actors"
         android:name="com.example.movies2mobile.ui.actors.ActorFragment"
         android:label="@string/title_actors"
-        tools:layout="@layout/fragment_actors" />
+        tools:layout="@layout/fragment_actors">
+        <argument
+            android:name="id"
+            app:argType="integer"
+            android:defaultValue="0"/>
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_settings"
