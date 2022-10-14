@@ -14,9 +14,11 @@ class MovieFragment : Fragment() {
 
     private val dataService: IDataService by inject()
 
+    private var _searchView: SearchView? = null
     private var _categoryFilter: String? = null
     private var _categories: List<String>? = null
     private var _filterMenu: MenuItem? = null
+    private var _initMovieId: Int? = 0
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -30,6 +32,11 @@ class MovieFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentMoviesBinding.inflate(inflater, container, false)
+
+        _searchView = ((context as MainActivity).supportActionBar?.themedContext ?: context)?.let {
+            SearchView(it)
+        }
+
         return binding.root
     }
 
@@ -38,16 +45,14 @@ class MovieFragment : Fragment() {
         menu.clear()
         inflater.inflate(R.menu.menu_movies, menu)
 
-        val searchView = ((context as MainActivity).supportActionBar?.themedContext ?: context)?.let {
-            SearchView(it)
-        }
+        _initMovieId = arguments?.getInt("id", 0)
 
         menu.findItem(R.id.miSearch).apply {
             setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW or MenuItem.SHOW_AS_ACTION_IF_ROOM)
-            actionView = searchView
+            actionView = _searchView
         }
 
-        searchView?.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+        _searchView?.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return search(query)
             }
@@ -72,9 +77,8 @@ class MovieFragment : Fragment() {
     }
 
     private fun search(query: String?) : Boolean {
-        val id = arguments?.getInt("id", 0)
-        if(id != null && id > 0 && (query == null || query.isEmpty())){
-            return searchById(id)
+        if(_initMovieId != null && _initMovieId!! > 0){
+            return searchById(_initMovieId)
         }
         val searchComponent = binding.moviesSearchComponent
         return searchComponent.search(query, _categoryFilter)
@@ -82,7 +86,9 @@ class MovieFragment : Fragment() {
 
     private fun searchById(id: Int?) : Boolean {
         val searchComponent = binding.moviesSearchComponent
-        return searchComponent.searchById(id)
+        val hasResult =  searchComponent.searchById(id)
+        _initMovieId = 0
+        return hasResult
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -117,6 +123,7 @@ class MovieFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        _searchView?.setOnQueryTextListener(null)
         _binding = null
     }
 

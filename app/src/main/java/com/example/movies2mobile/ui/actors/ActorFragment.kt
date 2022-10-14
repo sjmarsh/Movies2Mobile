@@ -9,6 +9,10 @@ import com.example.movies2mobile.R
 import com.example.movies2mobile.databinding.FragmentActorsBinding
 
 class ActorFragment : Fragment() {
+
+    private var _searchView: SearchView? = null
+    private var _initActorId: Int? = 0
+
     // This property is only valid between onCreateView and
     // onDestroyView.
     private var _binding: FragmentActorsBinding? = null
@@ -21,6 +25,11 @@ class ActorFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentActorsBinding.inflate(inflater, container, false)
+
+        _searchView = ((context as MainActivity).supportActionBar?.themedContext ?: context)?.let {
+            SearchView(it)
+        }
+
         return binding.root
     }
 
@@ -29,16 +38,14 @@ class ActorFragment : Fragment() {
         menu.clear()
         inflater.inflate(R.menu.menu_actors, menu)
 
-        val searchView = ((context as MainActivity).supportActionBar?.themedContext ?: context)?.let {
-            SearchView(it)
-        }
+        _initActorId = arguments?.getInt("id", 0)
 
         menu.findItem(R.id.miSearchActors).apply {
             setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW or MenuItem.SHOW_AS_ACTION_IF_ROOM)
-            actionView = searchView
+            actionView = _searchView
         }
 
-        searchView?.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+        _searchView?.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return search(query)
             }
@@ -50,10 +57,9 @@ class ActorFragment : Fragment() {
     }
 
     private fun search(query: String?) : Boolean {
-        val id = arguments?.getInt("id", 0)
-        if(id != null && id > 0 && (query == null || query.isEmpty())){
+        if(_initActorId != null && _initActorId!! > 0){
             // id is passed as an argument when navigating from a detail dialog
-            return searchById(id)
+            return searchById(_initActorId)
         }
         val searchComponent = binding.actorsSearchComponent
         return searchComponent.search(query)
@@ -61,11 +67,14 @@ class ActorFragment : Fragment() {
 
     private fun searchById(id: Int?) : Boolean {
         val searchComponent = binding.actorsSearchComponent
-        return searchComponent.searchById(id)
+        val hasResult = searchComponent.searchById(id)
+        _initActorId = 0
+        return hasResult
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        _searchView?.setOnQueryTextListener(null)
         _binding = null
     }
 }

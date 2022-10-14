@@ -13,13 +13,13 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 
-class SearchComponent(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs), KoinComponent
+class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs), KoinComponent
 {
     private val _dataService by inject<IDataService>()
     private val _searchContext: SearchContext?
 
     init {
-        inflate(context, R.layout.search_component, this)
+        inflate(context, R.layout.search_result_component, this)
 
         val lstSearchResults = findViewById<RecyclerView>(R.id.lstSearchResults)
         if(lstSearchResults != null) {
