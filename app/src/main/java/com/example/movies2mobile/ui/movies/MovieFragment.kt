@@ -12,7 +12,7 @@ import org.koin.android.ext.android.inject
 
 class MovieFragment : Fragment() {
 
-    val dataService: IDataService by inject()
+    private val dataService: IDataService by inject()
 
     private var _categoryFilter: String? = null
     private var _categories: List<String>? = null
@@ -72,7 +72,7 @@ class MovieFragment : Fragment() {
     }
 
     private fun search(query: String?) : Boolean {
-        var id = arguments?.getInt("id", 0)
+        val id = arguments?.getInt("id", 0)
         if(id != null && id > 0 && (query == null || query.isEmpty())){
             return searchById(id)
         }
@@ -89,14 +89,14 @@ class MovieFragment : Fragment() {
 
         if(_categories!!.contains(item.title.toString())) {
             _categoryFilter = item.title.toString()
-            ToggleFilterMenuIcon(true)
+            toggleFilterMenuIcon(true)
             search("")
             return true
         }
 
         if(item.title == "Filter") {
             _categoryFilter = null
-            ToggleFilterMenuIcon(false)
+            toggleFilterMenuIcon(false)
             search("")
             return true
         }
@@ -104,12 +104,7 @@ class MovieFragment : Fragment() {
         return false
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    private fun ToggleFilterMenuIcon(hasFilter: Boolean){
+    private fun toggleFilterMenuIcon(hasFilter: Boolean){
         val filledIcon = R.drawable.ic_filter_white_24dp
         val outlineIcon = R.drawable.ic_filter_outline_white_24dp
 
@@ -119,4 +114,10 @@ class MovieFragment : Fragment() {
             _filterMenu?.setIcon(filterIcon)
         }
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
 }

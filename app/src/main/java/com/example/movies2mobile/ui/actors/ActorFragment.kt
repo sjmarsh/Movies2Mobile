@@ -1,7 +1,6 @@
 package com.example.movies2mobile.ui.actors
 
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
@@ -51,7 +50,7 @@ class ActorFragment : Fragment() {
     }
 
     private fun search(query: String?) : Boolean {
-        var id = arguments?.getInt("id", 0)
+        val id = arguments?.getInt("id", 0)
         if(id != null && id > 0 && (query == null || query.isEmpty())){
             // id is passed as an argument when navigating from a detail dialog
             return searchById(id)
