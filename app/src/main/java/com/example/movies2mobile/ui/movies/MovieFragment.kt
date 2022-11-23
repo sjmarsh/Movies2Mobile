@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import com.example.movies2mobile.MainActivity
 import com.example.movies2mobile.R
 import com.example.movies2mobile.data.IDataService
+import com.example.movies2mobile.data.MovieSortBy
 import com.example.movies2mobile.databinding.FragmentMoviesBinding
 import org.koin.android.ext.android.inject
 
@@ -15,7 +16,9 @@ class MovieFragment : Fragment() {
     private val dataService: IDataService by inject()
 
     private var _searchView: SearchView? = null
+    private var _searchText: String? = null
     private var _categoryFilter: String? = null
+    private var _movieSortBy: MovieSortBy? = null
     private var _categories: List<String>? = null
     private var _filterMenu: MenuItem? = null
     private var _initMovieId: Int? = 0
@@ -54,11 +57,13 @@ class MovieFragment : Fragment() {
 
         _searchView?.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                return search(query)
+                _searchText = query
+                return search()
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                return search(newText)
+                _searchText = newText
+                return search()
             }
         })
 
@@ -76,12 +81,12 @@ class MovieFragment : Fragment() {
 
     }
 
-    private fun search(query: String?) : Boolean {
+    private fun search() : Boolean {
         if(_initMovieId != null && _initMovieId!! > 0){
             return searchById(_initMovieId)
         }
         val searchComponent = binding.moviesSearchComponent
-        return searchComponent.search(query, _categoryFilter)
+        return searchComponent.search(_searchText, _categoryFilter, _movieSortBy)
     }
 
     private fun searchById(id: Int?) : Boolean {
@@ -96,14 +101,21 @@ class MovieFragment : Fragment() {
         if(_categories!!.contains(item.title.toString())) {
             _categoryFilter = item.title.toString()
             toggleFilterMenuIcon(true)
-            search("")
+            search()
             return true
         }
 
         if(item.title == "Filter") {
             _categoryFilter = null
             toggleFilterMenuIcon(false)
-            search("")
+            search()
+            return true
+        }
+
+        val sortBys = MovieSortBy.values().map { it.toString()  }  // TODO use this as the basis for the sub menus (instead of hardcode xml duplication)
+        if(sortBys.contains(item.titleCondensed.toString())) {
+            _movieSortBy = MovieSortBy.valueOf(item.titleCondensed.toString())
+            search()
             return true
         }
 

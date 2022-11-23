@@ -32,12 +32,14 @@ class SearchResultDetailDialog(model: ModelBase, dataService: IDataService): Dia
 
         val txtDetailHeader = view.findViewById<TextView>(R.id.txtDetailHeader)
         val txtDetail = view.findViewById<TextView>(R.id.txtDetail)
+        val txtDateAdded = view.findViewById<TextView>(R.id.txtDateAdded)
         val cgDetailItems = view.findViewById<ChipGroup>(R.id.cgDetailItems)
         val btnClose = view.findViewById<Button>(R.id.btnCloseMovieDetail)
 
         if(_model is MovieModel){
             txtDetailHeader?.text = _model.title
             txtDetail?.text = _model.description
+            txtDateAdded?.text = "Date Added: ${_model.dateAdded.toDisplayDate()}"
             addActorSummaries(cgDetailItems, _model)
         }
         if(_model is ActorModel){

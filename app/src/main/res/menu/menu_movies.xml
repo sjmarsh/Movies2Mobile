@@ -16,6 +16,32 @@
         <menu>
         </menu>
     </item>
+    <item
+        android:id="@+id/miSort"
+        android:icon="@drawable/ic_sort_white_24dp"
+        app:showAsAction="ifRoom"
+        android:title="@string/sort">
+        <menu>
+            <item
+                android:id="@+id/miTitle"
+                app:showAsAction="ifRoom"
+                android:title="@string/title"
+                android:titleCondensed="Title">
+            </item>
+            <item
+                android:id="@+id/miReleaseYear"
+                app:showAsAction="ifRoom"
+                android:title="@string/release_year"
+                android:titleCondensed="ReleaseYear">
+            </item>
+            <item
+                android:id="@+id/miDateAdded"
+                app:showAsAction="ifRoom"
+                android:title="@string/date_added"
+                android:titleCondensed="DateAdded">
+            </item>
+        </menu>
+    </item>
 
     <!-- Settings, should always be in the overflow -->
     <item android:id="@+id/action_settings"

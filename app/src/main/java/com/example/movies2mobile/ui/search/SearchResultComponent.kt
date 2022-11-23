@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.movies2mobile.R
 import com.example.movies2mobile.data.IDataService
+import com.example.movies2mobile.data.MovieSortBy
 import com.example.movies2mobile.models.ModelBase
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -31,11 +32,12 @@ class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintL
         search("")
     }
 
-    fun search(query: String?, categoryFilter: String? = null) : Boolean {
+    fun search(query: String?, categoryFilter: String? = null, movieSortBy: MovieSortBy? = null) : Boolean {
 
         val searchViewModel = SearchViewModel(_dataService)
         searchViewModel.searchText = query
         searchViewModel.categoryFilter = categoryFilter
+        searchViewModel.movieSortBy = movieSortBy
         searchViewModel.searchContext = _searchContext
         searchViewModel.search()
         UpdateSearchResults(searchViewModel)

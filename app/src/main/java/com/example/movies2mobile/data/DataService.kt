@@ -25,18 +25,42 @@ class DataService(private val context: Context) : IDataService {
         }
     }
 
-    override fun searchMovies(title: String?, category: String?): List<MovieModel> {
+    override fun searchMovies(title: String?, category: String?, movieSortBy: MovieSortBy?): List<MovieModel> {
+        var result = importData?.movies
+
         if(title.isNullOrEmpty() && category.isNullOrEmpty()){
-            return importData?.movies?.sortedBy { m -> m.title }!!
+            result = importData?.movies
+        }
+        else {
+            result = importData?.movies?.filter { m ->
+                (title == null || m.title!!.contains(title, true))
+                        && (category == null || category == "" || m.category == category)
+            }
+                ?.toList()
+                ?: listOf()
         }
 
-        return importData?.movies?.filter {
-                m -> (title == null || m.title!!.contains(title, true))
-                    && (category == null || category == "" || m.category == category)
+        if(movieSortBy == null) {
+            result = result?.sortedBy { m -> m.title }
         }
-            ?.toList()
-            ?.sortedBy { m -> m.title }
-            ?: listOf()
+        else {
+            result = getSortedResult(result, movieSortBy)
+        }
+
+        return result!!
+    }
+
+    private fun getSortedResult(result: List<MovieModel>?, movieSortBy: MovieSortBy?): List<MovieModel>?{
+        if(result == null) {
+            return result
+        }
+
+        return when (movieSortBy){
+            MovieSortBy.Title -> result.sortedBy { m -> m.title }
+            MovieSortBy.ReleaseYear -> result.sortedBy { m -> m.releaseYear }
+            MovieSortBy.DateAdded -> result.sortedByDescending { m -> m.dateAdded }
+            else -> result
+        }
     }
 
     override fun searchActors(name: String?): List<ActorModel> {

@@ -8,4 +8,8 @@
     <string name="select_movie_data">Select Movie Data File</string>
     <string name="close">CLOSE</string>
     <string name="filter">Filter</string>
+    <string name="sort">Sort</string>
+    <string name="title">Title</string>
+    <string name="release_year">Release Year</string>
+    <string name="date_added">Date Added</string>
 </resources>
