@@ -15,5 +15,5 @@ Android app for Movies2 movie collection.  Initially this is just a proof of con
 - Add unit tests - explore how to do this with Kotlin. Project template includes some samples.
 - Improve architecture to make better use of View Models for view logic.  This should help with unit tests.
 - Add a demo mode to be used when you don't have a json file exported from the movies desktop application
-- Update icon to suit Android 11
+- ~~Update icon to suit Android 11
  
