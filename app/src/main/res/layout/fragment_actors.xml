@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".ui.actors.ActorFragment">
 
-    <com.example.movies2mobile.ui.search.SearchResultComponent
+    <com.sjmarsh.movies2mobile.ui.search.SearchResultComponent
         android:id="@+id/actors_search_component"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -8,11 +8,11 @@
     android:paddingRight="5dp"
     tools:context=".ui.movies.MovieFragment">
 
-    <com.example.movies2mobile.ui.search.SearchResultComponent
+    <com.sjmarsh.movies2mobile.ui.search.SearchResultComponent
         android:id="@+id/movies_search_component"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:searchContext="MOVIE" >
-    </com.example.movies2mobile.ui.search.SearchResultComponent>
+    </com.sjmarsh.movies2mobile.ui.search.SearchResultComponent>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

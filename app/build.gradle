@@ -7,7 +7,7 @@ android {
     compileSdk 31
 
     defaultConfig {
-        applicationId "com.example.movies2mobile"
+        applicationId 'com.sjmarsh.movies2mobile'
         minSdk 21
         targetSdk 31
         versionCode 1
@@ -37,7 +37,7 @@ android {
             excludes += ['META-INF/androidx.cardview_cardview.version']
         }
     }
-    namespace 'com.example.movies2mobile'
+    namespace 'com.sjmarsh.movies2mobile'
 
 }
 

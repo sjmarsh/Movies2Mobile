@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/navigation_movies"
-        android:name="com.example.movies2mobile.ui.movies.MovieFragment"
+        android:name="com.sjmarsh.movies2mobile.ui.movies.MovieFragment"
         android:label="@string/title_movies"
         tools:layout="@layout/fragment_movies">
         <argument
@@ -18,7 +18,7 @@
 
     <fragment
         android:id="@+id/navigation_actors"
-        android:name="com.example.movies2mobile.ui.actors.ActorFragment"
+        android:name="com.sjmarsh.movies2mobile.ui.actors.ActorFragment"
         android:label="@string/title_actors"
         tools:layout="@layout/fragment_actors">
         <argument
@@ -29,7 +29,7 @@
 
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="com.example.movies2mobile.ui.settings.SettingsFragment"
+        android:name="com.sjmarsh.movies2mobile.ui.settings.SettingsFragment"
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_settings" />
 </navigation>

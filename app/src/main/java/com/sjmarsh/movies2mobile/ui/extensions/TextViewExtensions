@@ -1,0 +1,22 @@
+package com.sjmarsh.movies2mobile.ui.extensions
+
+import android.view.MotionEvent
+import android.widget.TextView
+
+// Ref: https://medium.com/@dimabatyuk/adding-clear-button-to-edittext-9655e9dbb721
+
+fun TextView.setOnRightDrawableClicked(onClicked: (view: TextView) -> Unit) {
+    setOnTouchListener { view, event ->
+        var hasConsumed = false
+        if(view is TextView) {
+            if (event.x >= view.width - view.totalPaddingRight) {
+                if(event.action == MotionEvent.ACTION_UP) {
+                    onClicked(this)
+                }
+                view.performClick()
+                hasConsumed = true
+            }
+        }
+        hasConsumed
+    }
+}
