@@ -13,7 +13,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import java.io.File
 import java.io.IOException
 
-class DataService(private val context: Context) : com.sjmarsh.movies2mobile.data.IDataService {
+class DataService(context: Context) : IDataService {
 
     private var dataFilePath: String = ""
     private var importData: ImportModel? = null
@@ -25,8 +25,8 @@ class DataService(private val context: Context) : com.sjmarsh.movies2mobile.data
         }
     }
 
-    override fun searchMovies(title: String?, category: String?, movieSortBy: com.sjmarsh.movies2mobile.data.MovieSortBy?): List<MovieModel> {
-        var result = importData?.movies
+    override fun searchMovies(title: String?, category: String?, movieSortBy: MovieSortBy?): List<MovieModel> {
+        var result: List<MovieModel>?
 
         if(title.isNullOrEmpty() && category.isNullOrEmpty()){
             result = importData?.movies
@@ -50,15 +50,15 @@ class DataService(private val context: Context) : com.sjmarsh.movies2mobile.data
         return result!!
     }
 
-    private fun getSortedResult(result: List<MovieModel>?, movieSortBy: com.sjmarsh.movies2mobile.data.MovieSortBy?): List<MovieModel>?{
+    private fun getSortedResult(result: List<MovieModel>?, movieSortBy: MovieSortBy?): List<MovieModel>?{
         if(result == null) {
             return result
         }
 
         return when (movieSortBy){
-            com.sjmarsh.movies2mobile.data.MovieSortBy.Title -> result.sortedBy { m -> m.title }
-            com.sjmarsh.movies2mobile.data.MovieSortBy.ReleaseYear -> result.sortedBy { m -> m.releaseYear }
-            com.sjmarsh.movies2mobile.data.MovieSortBy.DateAdded -> result.sortedByDescending { m -> m.dateAdded }
+            MovieSortBy.Title -> result.sortedBy { m -> m.title }
+            MovieSortBy.ReleaseYear -> result.sortedBy { m -> m.releaseYear }
+            MovieSortBy.DateAdded -> result.sortedByDescending { m -> m.dateAdded }
             else -> result
         }
     }
@@ -99,7 +99,7 @@ class DataService(private val context: Context) : com.sjmarsh.movies2mobile.data
         var data: ImportModel? = null
 
         if(isExternalStorageAvailable) {
-            val moviesFilePath = dataFilePath + "/${com.sjmarsh.movies2mobile.data.Constants.MOVIE_DATA_FILE}"
+            val moviesFilePath = dataFilePath + "/${Constants.MOVIE_DATA_FILE}"
             val moviesFile = File(moviesFilePath)
 
             if (moviesFile.exists()) {
@@ -109,7 +109,7 @@ class DataService(private val context: Context) : com.sjmarsh.movies2mobile.data
                     val moviesJson = moviesFile.readText()
                     data = objectMapper.readValue(moviesJson)
                 } catch (e: Exception) {
-                    Log.e("DataService", e.localizedMessage)
+                    e.localizedMessage?.let { Log.e("DataService", it) }
                     when(e){
                         // TODO - need to raise message in UI
                         is IOException -> {

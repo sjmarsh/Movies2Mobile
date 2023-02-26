@@ -36,7 +36,7 @@ class MovieFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentMoviesBinding.inflate(inflater, container, false)
 
-        _searchView = ((context as com.sjmarsh.movies2mobile.MainActivity).supportActionBar?.themedContext ?: context)?.let {
+        _searchView = ((context as MainActivity).supportActionBar?.themedContext ?: context)?.let {
             SearchView(it)
         }
 

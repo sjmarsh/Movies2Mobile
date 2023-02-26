@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.sjmarsh.movies2mobile.data.Constants
 import com.sjmarsh.movies2mobile.databinding.FragmentSettingsBinding
 import java.io.File
@@ -31,8 +30,6 @@ class SettingsFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
-        val settingsViewModel =
-                ViewModelProvider(this).get(SettingsViewModel::class.java)
 
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -59,26 +56,26 @@ class SettingsFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if(requestCode == OPEN_FILE_REQUEST_CODE){
-            var uri = data?.data
+            val uri = data?.data
 
             try {
                 val inputStream: InputStream? = activity?.contentResolver?.openInputStream(uri!!)
                 if(inputStream == null){
                     throw Exception("The input stream was null")
                 }
-                val size: Int = inputStream?.available() ?: 0
+                val size: Int = inputStream.available()
                 val bytes = ByteArray(size)
                 inputStream.read(bytes)
                 inputStream.close()
                 val jsonString = String(bytes, StandardCharsets.UTF_8)
 
-                val targetFilePath = this.context?.filesDir?.path + "/${com.sjmarsh.movies2mobile.data.Constants.MOVIE_DATA_FILE}"
+                val targetFilePath = this.context?.filesDir?.path + "/${Constants.MOVIE_DATA_FILE}"
                 File(targetFilePath).writeText(jsonString)
 
                 Toast.makeText(this.context, "Movies data imported", Toast.LENGTH_SHORT)
                     .show()
             } catch (e: IOException) {
-                Log.e("Select Movie Data", e.localizedMessage)
+                e.localizedMessage?.let { Log.e("Select Movie Data", it) }
                 Toast.makeText(this.context, "Fail to read or write file", Toast.LENGTH_SHORT)
                     .show()
             }

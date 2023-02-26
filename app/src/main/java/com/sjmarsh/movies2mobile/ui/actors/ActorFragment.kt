@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import com.sjmarsh.movies2mobile.MainActivity
 import com.sjmarsh.movies2mobile.R
 import com.sjmarsh.movies2mobile.databinding.FragmentActorsBinding
 

@@ -40,7 +40,7 @@ class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintL
         searchViewModel.movieSortBy = movieSortBy
         searchViewModel.searchContext = _searchContext
         searchViewModel.search()
-        UpdateSearchResults(searchViewModel)
+        updateSearchResults(searchViewModel)
         return searchViewModel.hasSearchResults
     }
 
@@ -48,11 +48,11 @@ class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintL
         val searchViewModel = SearchViewModel(_dataService)
         searchViewModel.searchContext = _searchContext
         searchViewModel.searchById(id)
-        UpdateSearchResults(searchViewModel)
+        updateSearchResults(searchViewModel)
         return searchViewModel.hasSearchResults
     }
 
-    private fun UpdateSearchResults(searchViewModel: SearchViewModel) {
+    private fun updateSearchResults(searchViewModel: SearchViewModel) {
         val searchRecyclerAdapter = SearchRecyclerAdapter { searchResult ->
             showItemDetail(searchResult, _dataService)
         }
@@ -69,9 +69,9 @@ class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintL
 
     private fun getSearchContext(context: Context, attrs: AttributeSet): SearchContext? {
         val searchContext: SearchContext?
-        val customAttributesStyle = context.obtainStyledAttributes(attrs, R.styleable.SearchComponent, 0, 0)
+        val customAttributesStyle = context.obtainStyledAttributes(attrs, R.styleable.SearchResultComponent, 0, 0)
         try {
-            val searchContextString = customAttributesStyle.getString(R.styleable.SearchComponent_searchContext)
+            val searchContextString = customAttributesStyle.getString(R.styleable.SearchResultComponent_searchContext)
             searchContext = SearchContext.values().find { it.name == searchContextString } ?: SearchContext.MOVIE
         } finally {
             customAttributesStyle.recycle()

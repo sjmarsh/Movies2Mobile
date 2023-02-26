@@ -1,7 +1,6 @@
 package com.sjmarsh.movies2mobile
 
 import android.app.Application
-import com.sjmarsh.movies2mobile.data.DataService
 import com.sjmarsh.movies2mobile.data.IDataService
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger

@@ -22,13 +22,13 @@ class MainActivity : AppCompatActivity() {
 
         val navView: BottomNavigationView = binding.navView
 
-        val navController = findNavController(com.sjmarsh.movies2mobile.R.id.nav_host_fragment_activity_main)
+        val navController = findNavController(R.id.nav_host_fragment_activity_main)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration(setOf(
-            com.sjmarsh.movies2mobile.R.id.navigation_movies,
-            com.sjmarsh.movies2mobile.R.id.navigation_actors,
-            com.sjmarsh.movies2mobile.R.id.navigation_settings
+            R.id.navigation_movies,
+            R.id.navigation_actors,
+            R.id.navigation_settings
         ))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)

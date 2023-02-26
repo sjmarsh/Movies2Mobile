@@ -4,7 +4,6 @@ import android.util.Log
 import com.sjmarsh.movies2mobile.data.IDataService
 import com.sjmarsh.movies2mobile.data.MovieSortBy
 import com.sjmarsh.movies2mobile.models.ModelBase
-import com.sjmarsh.movies2mobile.models.MovieModel
 
 class SearchViewModel(dataService: IDataService) {
     private val _dataService: IDataService = dataService
