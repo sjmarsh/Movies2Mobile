@@ -3,13 +3,16 @@ package com.sjmarsh.movies2mobile.data
 import android.content.Context
 import android.os.Environment
 import android.util.Log
+import com.fasterxml.jackson.databind.MapperFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
+import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.sjmarsh.movies2mobile.models.ActorModel
 import com.sjmarsh.movies2mobile.models.ImportModel
 import com.sjmarsh.movies2mobile.models.MovieModel
-import com.fasterxml.jackson.databind.MapperFeature
-import com.fasterxml.jackson.databind.exc.MismatchedInputException
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import java.io.File
 import java.io.IOException
 
@@ -26,13 +29,11 @@ class DataService(context: Context) : IDataService {
     }
 
     override fun searchMovies(title: String?, category: String?, movieSortBy: MovieSortBy?): List<MovieModel> {
-        var result: List<MovieModel>?
 
-        if(title.isNullOrEmpty() && category.isNullOrEmpty()){
-            result = importData?.movies
-        }
-        else {
-            result = importData?.movies?.filter { m ->
+        var result: List<MovieModel>? = if(title.isNullOrEmpty() && category.isNullOrEmpty()){
+            importData?.movies
+        } else {
+            importData?.movies?.filter { m ->
                 (title == null || m.title!!.contains(title, true))
                         && (category == null || category == "" || m.category == category)
             }
@@ -40,11 +41,10 @@ class DataService(context: Context) : IDataService {
                 ?: listOf()
         }
 
-        if(movieSortBy == null) {
-            result = result?.sortedBy { m -> m.title }
-        }
-        else {
-            result = getSortedResult(result, movieSortBy)
+        result = if(movieSortBy == null) {
+            result?.sortedBy { m -> m.title }
+        } else {
+            getSortedResult(result, movieSortBy)
         }
 
         return result!!
@@ -104,19 +104,24 @@ class DataService(context: Context) : IDataService {
 
             if (moviesFile.exists()) {
                 try {
-                    val objectMapper = jacksonObjectMapper()
-                    objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+                    val kotlinModule: KotlinModule = KotlinModule.Builder()
+                        .configure(KotlinFeature.StrictNullChecks, false)
+                        .build()
+                    val objectMapper: ObjectMapper = JsonMapper.builder()
+                        .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+                        .addModule(kotlinModule)
+                        .build()
                     val moviesJson = moviesFile.readText()
                     data = objectMapper.readValue(moviesJson)
                 } catch (e: Exception) {
                     e.localizedMessage?.let { Log.e("DataService", it) }
                     when(e){
                         // TODO - need to raise message in UI
-                        is IOException -> {
-                            Log.i("DataService","File not found or could not be read")
-                        }
                         is MismatchedInputException -> {
                             Log.i("DataService", "Invalid json content in file")
+                        }
+                        is IOException -> {
+                            Log.i("DataService","File not found or could not be read")
                         }
                     }
                 }
