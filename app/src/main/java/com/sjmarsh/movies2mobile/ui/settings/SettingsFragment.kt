@@ -8,6 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.sjmarsh.movies2mobile.data.Constants
 import com.sjmarsh.movies2mobile.databinding.FragmentSettingsBinding
@@ -18,7 +20,6 @@ import java.nio.charset.StandardCharsets
 
 class SettingsFragment : Fragment() {
 
-    private val OPEN_FILE_REQUEST_CODE: Int = 101
     private var _binding: FragmentSettingsBinding? = null
 
     // This property is only valid between onCreateView and
@@ -36,49 +37,45 @@ class SettingsFragment : Fragment() {
 
         val btnSelectMovieDataFile: Button = binding.btnSelectMovieDataFile
         btnSelectMovieDataFile.setOnClickListener {
-            startActivityForResult(
-                Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "*/*"
-                    putExtra(Intent.EXTRA_MIME_TYPES, arrayOf(
-                        "text/json", // .json
-                        "text/plain" // .txt
-                    ))
-                },
-                OPEN_FILE_REQUEST_CODE
-            )
+            selectMovieFile.launch(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "*/*"
+                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf(
+                    "text/json", // .json
+                    "text/plain" // .txt
+                ))
+            })
         }
 
         return root
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+    private val selectMovieFile = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        handleSelectMovieFileResult(result)
+    }
 
-        if(requestCode == OPEN_FILE_REQUEST_CODE){
-            val uri = data?.data
+    private fun handleSelectMovieFileResult(result: ActivityResult) {
+        val data = result.data
+        val uri = data?.data
 
-            try {
-                val inputStream: InputStream? = activity?.contentResolver?.openInputStream(uri!!)
-                if(inputStream == null){
-                    throw Exception("The input stream was null")
-                }
-                val size: Int = inputStream.available()
-                val bytes = ByteArray(size)
-                inputStream.read(bytes)
-                inputStream.close()
-                val jsonString = String(bytes, StandardCharsets.UTF_8)
+        try {
+            val inputStream: InputStream = activity?.contentResolver?.openInputStream(uri!!)
+                ?: throw Exception("The input stream was null")
+            val size: Int = inputStream.available()
+            val bytes = ByteArray(size)
+            inputStream.read(bytes)
+            inputStream.close()
+            val jsonString = String(bytes, StandardCharsets.UTF_8)
 
-                val targetFilePath = this.context?.filesDir?.path + "/${Constants.MOVIE_DATA_FILE}"
-                File(targetFilePath).writeText(jsonString)
+            val targetFilePath = this.context?.filesDir?.path + "/${Constants.MOVIE_DATA_FILE}"
+            File(targetFilePath).writeText(jsonString)
 
-                Toast.makeText(this.context, "Movies data imported", Toast.LENGTH_SHORT)
-                    .show()
-            } catch (e: IOException) {
-                e.localizedMessage?.let { Log.e("Select Movie Data", it) }
-                Toast.makeText(this.context, "Fail to read or write file", Toast.LENGTH_SHORT)
-                    .show()
-            }
+            Toast.makeText(this.context, "Movies data imported", Toast.LENGTH_SHORT)
+                .show()
+        } catch (e: IOException) {
+            e.localizedMessage?.let { Log.e("Select Movie Data", it) }
+            Toast.makeText(this.context, "Fail to read or write file", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
