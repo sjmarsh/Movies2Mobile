@@ -52,10 +52,11 @@ class DataStore(context: Context) : IDataStore {
     private fun loadAllData(): ImportModel {
 
         if(importData !== null){
+            Log.i("DataStore", "Using cached data")
             return importData as ImportModel
         }
 
-        var data: ImportModel? = null
+        Log.i("DataStore", "Loading data from file")
 
         if(isExternalStorageAvailable) {
             val moviesFilePath = dataFilePath + "/${Constants.MOVIE_DATA_FILE}"
@@ -74,7 +75,7 @@ class DataStore(context: Context) : IDataStore {
 
                     val moviesJson = moviesFile.readText()
 
-                    data = objectMapper.readValue(moviesJson)
+                    importData = objectMapper.readValue(moviesJson)
 
                 } catch (e: Exception) {
                     e.localizedMessage?.let { Log.e("DataService", it) }
@@ -91,7 +92,7 @@ class DataStore(context: Context) : IDataStore {
             }
         }
 
-        return data?: ImportModel(listOf(), listOf())
+        return importData?: ImportModel(listOf(), listOf())
     }
 
     private val isExternalStorageAvailable: Boolean get() {
