@@ -9,6 +9,7 @@ import com.sjmarsh.movies2mobile.R
 import com.sjmarsh.movies2mobile.data.IDataService
 import com.sjmarsh.movies2mobile.data.MovieSortBy
 import com.sjmarsh.movies2mobile.databinding.FragmentMoviesBinding
+import kotlinx.coroutines.runBlocking
 import org.koin.android.ext.android.inject
 
 class MovieFragment : Fragment() {
@@ -67,7 +68,9 @@ class MovieFragment : Fragment() {
             }
         })
 
-        _categories = dataService.getMovieCategories()
+        runBlocking {
+            _categories = dataService.getMovieCategories()
+        }
 
         _filterMenu = menu.findItem(R.id.miFilter)
 

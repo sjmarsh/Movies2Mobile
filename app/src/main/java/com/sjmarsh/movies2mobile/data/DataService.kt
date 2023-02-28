@@ -1,44 +1,21 @@
 package com.sjmarsh.movies2mobile.data
 
-import android.content.Context
-import android.os.Environment
-import android.util.Log
-import com.fasterxml.jackson.databind.MapperFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.exc.MismatchedInputException
-import com.fasterxml.jackson.databind.json.JsonMapper
-import com.fasterxml.jackson.module.kotlin.KotlinFeature
-import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.sjmarsh.movies2mobile.models.ActorModel
-import com.sjmarsh.movies2mobile.models.ImportModel
 import com.sjmarsh.movies2mobile.models.MovieModel
-import java.io.File
-import java.io.IOException
 
-class DataService(context: Context) : IDataService {
+class DataService(private val dataStore: IDataStore) : IDataService {
 
-    private var dataFilePath: String = ""
-    private var importData: ImportModel? = null
+    override suspend fun searchMovies(title: String?, category: String?, movieSortBy: MovieSortBy?): List<MovieModel> {
 
-    init {
-        dataFilePath = context.filesDir.path
-        if(importData == null) {
-            importData = getAllData()
-        }
-    }
-
-    override fun searchMovies(title: String?, category: String?, movieSortBy: MovieSortBy?): List<MovieModel> {
-
+        val movies = dataStore.movies()
         var result: List<MovieModel>? = if(title.isNullOrEmpty() && category.isNullOrEmpty()){
-            importData?.movies
+            movies
         } else {
-            importData?.movies?.filter { m ->
+            movies.filter { m ->
                 (title == null || m.title!!.contains(title, true))
                         && (category == null || category == "" || m.category == category)
             }
-                ?.toList()
-                ?: listOf()
+                .toList()
         }
 
         result = if(movieSortBy == null) {
@@ -63,77 +40,41 @@ class DataService(context: Context) : IDataService {
         }
     }
 
-    override fun searchActors(name: String?): List<ActorModel> {
-        if(name.isNullOrEmpty()){
-            return importData?.actors?.sortedBy { a -> a.lastName }!!
+    override suspend fun searchActors(name: String?): List<ActorModel> {
+        val actors = dataStore.actors()
+
+        return if(name.isNullOrEmpty()){
+            actors.sortedBy { a -> a.lastName }
+        } else {
+            actors.filter { a -> ((a.fullName != null && a.fullName.lowercase().contains(name.lowercase()))) }
+                .toList()
+                .sortedBy { a -> a.lastName }
         }
-
-        return importData?.actors?.filter { a -> ((a.fullName != null && a.fullName.lowercase().contains(name.lowercase()))) }
-            ?.toList()
-            ?.sortedBy { a -> a.lastName }!!
     }
 
-    override fun getMovieCategories(): List<String> {
-        val categories = importData?.movies?.mapNotNull { m -> m.category }
-        return categories?.distinct()?.sorted() ?: listOf()
+    override suspend fun getMovieCategories(): List<String> {
+        val movies = dataStore.movies()
+        val categories = movies.mapNotNull { m -> m.category }
+        return categories.distinct().sorted()
     }
 
-    override fun getActorsById(actorId: Int?): List<ActorModel>? {
-        return importData?.actors?.filter { a -> a.id == actorId }
+    override suspend fun getActorsById(actorId: Int?): List<ActorModel> {
+        val actors = dataStore.actors()
+        return actors.filter { a -> a.id == actorId }
     }
 
-    override fun getActorsByIds(actorIds: List<Int?>): List<ActorModel>? {
-        return importData?.actors?.filter { a -> actorIds.contains(a.id) }
+    override suspend fun getActorsByIds(actorIds: List<Int?>): List<ActorModel> {
+        val actors = dataStore.actors()
+        return actors.filter { a -> actorIds.contains(a.id) }
     }
 
-    override fun getMoviesByActorId(actorId: Int?): List<MovieModel>? {
-        return importData?.movies?.filter { m -> m.actors != null && m.actors.find { a -> a.id == actorId } != null }
+    override suspend fun getMoviesByActorId(actorId: Int?): List<MovieModel> {
+        val movies = dataStore.movies()
+        return movies.filter { m -> m.actors != null && m.actors.find { a -> a.id == actorId } != null }
     }
 
-    override fun getMoviesByMovieId(movieId: Int?): List<MovieModel>? {
-        return importData?.movies?.filter { m -> m.id == movieId }
+    override suspend fun getMoviesByMovieId(movieId: Int?): List<MovieModel> {
+        val movies = dataStore.movies()
+        return movies.filter { m -> m.id == movieId }
     }
-
-    private fun getAllData(): ImportModel {
-
-        var data: ImportModel? = null
-
-        if(isExternalStorageAvailable) {
-            val moviesFilePath = dataFilePath + "/${Constants.MOVIE_DATA_FILE}"
-            val moviesFile = File(moviesFilePath)
-
-            if (moviesFile.exists()) {
-                try {
-                    val kotlinModule: KotlinModule = KotlinModule.Builder()
-                        .configure(KotlinFeature.StrictNullChecks, false)
-                        .build()
-                    val objectMapper: ObjectMapper = JsonMapper.builder()
-                        .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                        .addModule(kotlinModule)
-                        .build()
-                    val moviesJson = moviesFile.readText()
-                    data = objectMapper.readValue(moviesJson)
-                } catch (e: Exception) {
-                    e.localizedMessage?.let { Log.e("DataService", it) }
-                    when(e){
-                        // TODO - need to raise message in UI
-                        is MismatchedInputException -> {
-                            Log.i("DataService", "Invalid json content in file")
-                        }
-                        is IOException -> {
-                            Log.i("DataService","File not found or could not be read")
-                        }
-                    }
-                }
-            }
-        }
-
-        return data?: ImportModel(listOf(), listOf())
-    }
-
-    private val isExternalStorageAvailable: Boolean get() {
-        val extStorageState = Environment.getExternalStorageState()
-        return Environment.MEDIA_MOUNTED == extStorageState
-    }
-
 }

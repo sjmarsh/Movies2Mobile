@@ -15,7 +15,7 @@ class SearchViewModel(dataService: IDataService) {
     var searchResults = listOf<ModelBase>()  // TODO make this more generic
     var hasSearchResults : Boolean = searchResults.isNotEmpty()
 
-    fun search() {
+    suspend fun search() {
         when(searchContext) {
             SearchContext.MOVIE -> searchResults = _dataService.searchMovies(searchText, categoryFilter, movieSortBy)
             SearchContext.ACTOR -> searchResults = _dataService.searchActors(searchText)
@@ -23,10 +23,10 @@ class SearchViewModel(dataService: IDataService) {
         }
     }
 
-    fun searchById(id: Int?){
+    suspend fun searchById(id: Int?){
         when(searchContext) {
-            SearchContext.MOVIE -> searchResults = _dataService.getMoviesByMovieId(id)!!
-            SearchContext.ACTOR -> searchResults = _dataService.getActorsById(id)!!
+            SearchContext.MOVIE -> searchResults = _dataService.getMoviesByMovieId(id)
+            SearchContext.ACTOR -> searchResults = _dataService.getActorsById(id)
             else -> { Log.e("SearchViewModel","Search Context not supported")}
         }
     }

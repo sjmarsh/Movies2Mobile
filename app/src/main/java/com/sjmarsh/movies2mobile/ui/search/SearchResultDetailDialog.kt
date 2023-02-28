@@ -17,11 +17,12 @@ import com.sjmarsh.movies2mobile.models.MovieModel
 import com.sjmarsh.movies2mobile.ui.extensions.toDisplayDate
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import kotlinx.coroutines.runBlocking
 
 class SearchResultDetailDialog(model: ModelBase, dataService: IDataService): DialogFragment() {
 
-    val _model = model
-    val _dataService = dataService
+    private val _model = model
+    private val _dataService = dataService
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
@@ -60,27 +61,31 @@ class SearchResultDetailDialog(model: ModelBase, dataService: IDataService): Dia
         val width = (resources.displayMetrics.widthPixels * 0.85).toInt()
         dialog!!.window?.setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
     }
-
+// TODO  this should use it's own ViewModel rather than call data service directly!
     private fun addActorSummaries(cgDetailItems: ChipGroup, movieModel: MovieModel) {
         if(movieModel.actors != null){
-            val actors = _dataService.getActorsByIds(movieModel.actors.map { a -> a.id})
-            actors?.forEach {
-                addChipToChipGroup(cgDetailItems, it.fullName, it.id, R.id.navigation_actors)
+            runBlocking {
+                val actors = _dataService.getActorsByIds(movieModel.actors.map { a -> a.id})
+                actors.forEach {
+                    addChipToChipGroup(cgDetailItems, it.fullName, it.id, R.id.navigation_actors)
+                }
             }
         }
     }
 
     private fun addMovieSummaries(cgDetailItems: ChipGroup, actorModel: ActorModel) {
-        val movies = _dataService.getMoviesByActorId(actorModel.id)
-        movies?.forEach{
-            addChipToChipGroup(cgDetailItems, it.title, it.id, R.id.navigation_movies)
+        runBlocking {
+            val movies = _dataService.getMoviesByActorId(actorModel.id)
+            movies.forEach{
+                addChipToChipGroup(cgDetailItems, it.title, it.id, R.id.navigation_movies)
+            }
         }
     }
 
     private fun addChipToChipGroup(cgDetailItems: ChipGroup, chipTitle: String?, id: Int?, navigationResourceId: Int) {
         val chip = Chip(context)
         chip.text = chipTitle
-        chip.setOnClickListener { _ ->
+        chip.setOnClickListener {
             dialog?.dismiss()
             findNavController().navigate(navigationResourceId, bundleOf("id" to id))
         }

@@ -10,6 +10,7 @@ import com.sjmarsh.movies2mobile.R
 import com.sjmarsh.movies2mobile.data.IDataService
 import com.sjmarsh.movies2mobile.data.MovieSortBy
 import com.sjmarsh.movies2mobile.models.ModelBase
+import kotlinx.coroutines.runBlocking
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -39,7 +40,11 @@ class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintL
         searchViewModel.categoryFilter = categoryFilter
         searchViewModel.movieSortBy = movieSortBy
         searchViewModel.searchContext = _searchContext
-        searchViewModel.search()
+
+        runBlocking {
+            searchViewModel.search()
+        }
+
         updateSearchResults(searchViewModel)
         return searchViewModel.hasSearchResults
     }
@@ -47,7 +52,11 @@ class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintL
     fun searchById(id: Int?) : Boolean {
         val searchViewModel = SearchViewModel(_dataService)
         searchViewModel.searchContext = _searchContext
-        searchViewModel.searchById(id)
+
+        runBlocking {
+            searchViewModel.searchById(id)
+        }
+
         updateSearchResults(searchViewModel)
         return searchViewModel.hasSearchResults
     }
