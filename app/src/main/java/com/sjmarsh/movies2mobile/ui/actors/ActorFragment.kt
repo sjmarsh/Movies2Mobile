@@ -41,7 +41,6 @@ class ActorFragment : Fragment() {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menu.clear()
                 menuInflater.inflate(R.menu.menu_actors, menu)
-
                 menu.findItem(R.id.miSearchActors).apply {
                     setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW or MenuItem.SHOW_AS_ACTION_IF_ROOM)
                     actionView = _searchView
@@ -51,7 +50,6 @@ class ActorFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.miSearchActors -> {
-
                       true
                     }
                     else -> false

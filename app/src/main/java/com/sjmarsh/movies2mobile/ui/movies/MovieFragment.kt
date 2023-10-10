@@ -3,7 +3,10 @@ package com.sjmarsh.movies2mobile.ui.movies
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import com.sjmarsh.movies2mobile.MainActivity
 import com.sjmarsh.movies2mobile.R
 import com.sjmarsh.movies2mobile.data.IDataService
@@ -17,9 +20,6 @@ class MovieFragment : Fragment() {
     private val dataService: IDataService by inject()
 
     private var _searchView: SearchView? = null
-    private var _searchText: String? = null
-    private var _categoryFilter: String? = null
-    private var _movieSortBy: MovieSortBy? = null
     private var _categories: List<String>? = null
     private var _filterMenu: MenuItem? = null
     private var _initMovieId: Int? = 0
@@ -31,7 +31,6 @@ class MovieFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -44,52 +43,82 @@ class MovieFragment : Fragment() {
         return binding.root
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        menu.clear()
-        inflater.inflate(R.menu.menu_movies, menu)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val menuHost: MenuHost = requireActivity()
 
-        _initMovieId = arguments?.getInt("id", 0)
+        menuHost.addMenuProvider(object: MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menu.clear()
+                menuInflater.inflate(R.menu.menu_movies, menu)
+                menu.findItem(R.id.miSearch).apply {
+                    setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW or MenuItem.SHOW_AS_ACTION_IF_ROOM)
+                    actionView = _searchView
+                }
 
-        menu.findItem(R.id.miSearch).apply {
-            setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW or MenuItem.SHOW_AS_ACTION_IF_ROOM)
-            actionView = _searchView
-        }
+                runBlocking {
+                    _categories = dataService.getMovieCategories()
+                }
+                _filterMenu = menu.findItem(R.id.miFilter)
+                if(_filterMenu != null){
+                    val groupId = 0
+                    for(i in _categories!!.indices) {
+                        val itemId = i + 100
+                        _filterMenu?.subMenu?.add(groupId, itemId, i, _categories!![i])
+                    }
+                }
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+
+                if(_categories!!.contains(menuItem.title.toString())) {
+                    val categoryFilter = menuItem.title.toString()
+                    toggleFilterMenuIcon(true)
+                    search(null, categoryFilter)
+                    return true
+                }
+
+                if(menuItem.title == "Filter") {
+                    val categoryFilter = null
+                    toggleFilterMenuIcon(false)
+                    search(null, categoryFilter)
+                    return true
+                }
+
+                val sortBys = MovieSortBy.values().map { it.toString()  }  // TODO use this as the basis for the sub menus (instead of hardcode xml duplication)
+                if(sortBys.contains(menuItem.titleCondensed.toString())) {
+                    val movieSortBy = MovieSortBy.valueOf(menuItem.titleCondensed.toString())
+                    search(null,null, movieSortBy)
+                    return true
+                }
+
+                return when (menuItem.itemId) {
+                    R.id.miSearch -> {
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
+        this._initMovieId = arguments?.getInt("id", 0)
 
         _searchView?.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                _searchText = query
-                return search()
+                return search(query)
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                _searchText = newText
-                return search()
+                return search(newText)
             }
         })
-
-        runBlocking {
-            _categories = dataService.getMovieCategories()
-        }
-
-        _filterMenu = menu.findItem(R.id.miFilter)
-
-        if(_filterMenu != null){
-            val groupId = 0
-            for(i in _categories!!.indices) {
-                val itemId = i + 100
-                _filterMenu?.subMenu?.add(groupId, itemId, i, _categories!![i])
-            }
-        }
-
     }
 
-    private fun search() : Boolean {
+    private fun search(searchText: String?, categoryFilter: String? = null, movieSortBy: MovieSortBy? = null) : Boolean {
         if(_initMovieId != null && _initMovieId!! > 0){
             return searchById(_initMovieId)
         }
         val searchComponent = binding.moviesSearchComponent
-        return searchComponent.search(_searchText, _categoryFilter, _movieSortBy)
+        return searchComponent.search(searchText, categoryFilter, movieSortBy)
     }
 
     private fun searchById(id: Int?) : Boolean {
@@ -97,32 +126,6 @@ class MovieFragment : Fragment() {
         val hasResult =  searchComponent.searchById(id)
         _initMovieId = 0
         return hasResult
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        if(_categories!!.contains(item.title.toString())) {
-            _categoryFilter = item.title.toString()
-            toggleFilterMenuIcon(true)
-            search()
-            return true
-        }
-
-        if(item.title == "Filter") {
-            _categoryFilter = null
-            toggleFilterMenuIcon(false)
-            search()
-            return true
-        }
-
-        val sortBys = MovieSortBy.values().map { it.toString()  }  // TODO use this as the basis for the sub menus (instead of hardcode xml duplication)
-        if(sortBys.contains(item.titleCondensed.toString())) {
-            _movieSortBy = MovieSortBy.valueOf(item.titleCondensed.toString())
-            search()
-            return true
-        }
-
-        return false
     }
 
     private fun toggleFilterMenuIcon(hasFilter: Boolean){
