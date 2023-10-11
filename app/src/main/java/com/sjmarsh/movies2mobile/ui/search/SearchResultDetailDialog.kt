@@ -11,12 +11,12 @@ import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.findNavController
 import com.sjmarsh.movies2mobile.R
 import com.sjmarsh.movies2mobile.data.IDataService
-import com.sjmarsh.movies2mobile.models.ActorModel
 import com.sjmarsh.movies2mobile.models.ModelBase
 import com.sjmarsh.movies2mobile.models.MovieModel
 import com.sjmarsh.movies2mobile.ui.extensions.toDisplayDate
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.sjmarsh.movies2mobile.models.ActorModel
 import kotlinx.coroutines.runBlocking
 
 class SearchResultDetailDialog(model: ModelBase, dataService: IDataService): DialogFragment() {

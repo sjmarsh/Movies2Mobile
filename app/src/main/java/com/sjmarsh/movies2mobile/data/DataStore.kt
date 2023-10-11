@@ -3,20 +3,24 @@ package com.sjmarsh.movies2mobile.data
 import android.content.Context
 import android.os.Environment
 import android.util.Log
-import com.fasterxml.jackson.databind.MapperFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.exc.MismatchedInputException
-import com.fasterxml.jackson.databind.json.JsonMapper
-import com.fasterxml.jackson.module.kotlin.KotlinFeature
-import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.sjmarsh.movies2mobile.models.ActorModel
 import com.sjmarsh.movies2mobile.models.ImportModel
 import com.sjmarsh.movies2mobile.models.MovieModel
+import com.squareup.moshi.FromJson
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.JsonDataException
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.ToJson
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
+import java.text.DateFormat
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.TimeZone
 
 class DataStore(context: Context) : IDataStore {
 
@@ -64,24 +68,40 @@ class DataStore(context: Context) : IDataStore {
 
             if (moviesFile.exists()) {
                 try {
-                    val kotlinModule: KotlinModule = KotlinModule.Builder()
-                        .configure(KotlinFeature.StrictNullChecks, false)
-                        .build()
-
-                    val objectMapper: ObjectMapper = JsonMapper.builder()
-                        .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                        .addModule(kotlinModule)
-                        .build()
-
                     val moviesJson = moviesFile.readText()
 
-                    importData = objectMapper.readValue(moviesJson)
+                    val customDateAdapter: Any = object : Any() {
+                        var dateFormat: DateFormat? = null
+                        init {
+                            dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm")
+                            dateFormat!!.timeZone = TimeZone.getTimeZone("AEDT")
+                        }
+                        @ToJson
+                        @Synchronized
+                        fun dateToJson(d: Date?): String? {
+                            return d?.let { dateFormat!!.format(it) }
+                        }
+                        @FromJson
+                        @Synchronized
+                        @Throws(ParseException::class)
+                        fun dateToJson(s: String?): Date? {
+                            return s?.let { dateFormat!!.parse(it) }
+                        }
+                    }
+
+                    val moshi: Moshi = Moshi.Builder()
+                        .add(customDateAdapter)
+                        .addLast(KotlinJsonAdapterFactory())
+                        .build()
+                    val jsonAdapter: JsonAdapter<ImportModel> = moshi.adapter(ImportModel::class.java)
+
+                    importData = jsonAdapter.fromJson(moviesJson)
 
                 } catch (e: Exception) {
                     e.localizedMessage?.let { Log.e("DataService", it) }
                     when(e){
                         // TODO - need to raise message in UI
-                        is MismatchedInputException -> {
+                        is JsonDataException -> {
                             Log.i("DataService", "Invalid json content in file")
                         }
                         is IOException -> {

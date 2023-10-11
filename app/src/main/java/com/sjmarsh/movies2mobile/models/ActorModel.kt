@@ -1,15 +1,15 @@
 package com.sjmarsh.movies2mobile.models
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import java.util.*
+import com.squareup.moshi.Json
+import java.util.Date
 
-class ActorModel (
-    id: Int?,
-    val firstName: String?,
-    val lastName: String?,
-    val sex: String?,
-    val dateOfBirth: Date?,
-    @JsonIgnore
-    val photo: String?,
-    val fullName: String?
+data class ActorModel(
+    override val id: Int?,
+    val firstName: String? = "",
+    val lastName: String? = "",
+    val sex: String? = "",
+    @Json(ignore = true)
+    val photo: String? = "",
+    val fullName: String? = "",
+    val dateOfBirth: Date? = null,
 ) : ModelBase(id)
