@@ -2,6 +2,7 @@ package com.sjmarsh.movies2mobile.data
 
 import android.content.Context
 import com.sjmarsh.movies2mobile.models.ActorModel
+import com.sjmarsh.movies2mobile.models.ModelBase
 import com.sjmarsh.movies2mobile.models.MovieModel
 import com.sjmarsh.movies2mobile.ui.extensions.toDate
 
@@ -31,13 +32,17 @@ class DataStoreSqlBased(context: Context) : IDataStore {
                             m.rating,
                             m.dateAdded.toDate(),
                             m.coverArt,
-                            null
+                            getMovieActors(m.id)
                         )
                     }
                 }
             }
         }
         return movieModels;
+    }
+
+    private fun getMovieActors(id: Int): List<ModelBase>? {
+        return database.movieActorDao().getByMovieId(id).map{ m -> ModelBase(m.actorId) }
     }
 
     override suspend fun actors(): List<ActorModel> {

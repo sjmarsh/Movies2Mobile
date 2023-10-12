@@ -17,10 +17,11 @@ import com.sjmarsh.movies2mobile.data.Constants
 import com.sjmarsh.movies2mobile.data.IJsonToModel
 import com.sjmarsh.movies2mobile.data.MovieDatabase
 import com.sjmarsh.movies2mobile.data.entities.ActorEntity
+import com.sjmarsh.movies2mobile.data.entities.MovieActorEntity
 import com.sjmarsh.movies2mobile.data.entities.MovieEntity
 import com.sjmarsh.movies2mobile.databinding.FragmentSettingsBinding
+import com.sjmarsh.movies2mobile.models.MovieModel
 import com.sjmarsh.movies2mobile.ui.extensions.toDatabaseDate
-import com.sjmarsh.movies2mobile.ui.extensions.toDisplayDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -28,6 +29,7 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
+
 
 class SettingsFragment() : Fragment() {
 
@@ -89,8 +91,7 @@ class SettingsFragment() : Fragment() {
         val bytes = ByteArray(size)
         inputStream.read(bytes)
         inputStream.close()
-        val jsonString = String(bytes, StandardCharsets.UTF_8)
-        return jsonString
+        return String(bytes, StandardCharsets.UTF_8)
     }
 
     private fun writeToLocalAppFileStorage(jsonString: String) {
@@ -126,6 +127,11 @@ class SettingsFragment() : Fragment() {
                                 )
                             }
                             db.movieDao().initMovies(movieEntities)
+
+                            val movieActors = getMovieActors(importModel.movies)
+                            if(movieActors !== null) {
+                                db.movieActorDao().initMovieActors(movieActors)
+                            }
                         }
                         if (importModel.actors !== null) {
                             val actorEntities = importModel.actors!!.map { a ->
@@ -145,11 +151,14 @@ class SettingsFragment() : Fragment() {
                 }
             }
         }
-
-
-
     }
 
+    private fun getMovieActors(movies: List<MovieModel>?) : List<MovieActorEntity>? {
+        if(movies == null) return null
+        val movieActors = ArrayList<MovieActorEntity>()
+        movies.forEach { m -> if(m.actors !== null) m.actors.forEach { a -> movieActors.add(MovieActorEntity(m.id, a.id!!)) }}
+        return movieActors.toList()
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

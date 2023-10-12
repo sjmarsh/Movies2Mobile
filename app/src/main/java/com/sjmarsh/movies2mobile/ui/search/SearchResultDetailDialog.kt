@@ -17,7 +17,11 @@ import com.sjmarsh.movies2mobile.ui.extensions.toDisplayDate
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.sjmarsh.movies2mobile.models.ActorModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 class SearchResultDetailDialog(model: ModelBase, dataService: IDataService): DialogFragment() {
 
@@ -65,9 +69,14 @@ class SearchResultDetailDialog(model: ModelBase, dataService: IDataService): Dia
     private fun addActorSummaries(cgDetailItems: ChipGroup, movieModel: MovieModel) {
         if(movieModel.actors != null){
             runBlocking {
-                val actors = _dataService.getActorsByIds(movieModel.actors.map { a -> a.id})
-                actors.forEach {
-                    addChipToChipGroup(cgDetailItems, it.fullName, it.id, R.id.navigation_actors)
+                coroutineScope {
+                    val getActorsByIdsAsync = async(Dispatchers.IO) { _dataService.getActorsByIds(movieModel.actors.map { a -> a.id}) }
+                    withContext(Dispatchers.IO) {
+                        val actors = getActorsByIdsAsync.await()
+                        actors.forEach {
+                            addChipToChipGroup(cgDetailItems, it.fullName, it.id, R.id.navigation_actors)
+                        }
+                    }
                 }
             }
         }
@@ -75,9 +84,14 @@ class SearchResultDetailDialog(model: ModelBase, dataService: IDataService): Dia
 
     private fun addMovieSummaries(cgDetailItems: ChipGroup, actorModel: ActorModel) {
         runBlocking {
-            val movies = _dataService.getMoviesByActorId(actorModel.id)
-            movies.forEach{
-                addChipToChipGroup(cgDetailItems, it.title, it.id, R.id.navigation_movies)
+            coroutineScope {
+                val getMoviesByActorIdAsync = async(Dispatchers.IO) { _dataService.getMoviesByActorId(actorModel.id) }
+                withContext(Dispatchers.IO) {
+                    val movies = getMoviesByActorIdAsync.await()
+                    movies.forEach{
+                        addChipToChipGroup(cgDetailItems, it.title, it.id, R.id.navigation_movies)
+                    }
+                }
             }
         }
     }
