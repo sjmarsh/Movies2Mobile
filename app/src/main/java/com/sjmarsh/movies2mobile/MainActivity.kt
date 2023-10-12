@@ -1,14 +1,20 @@
 package com.sjmarsh.movies2mobile
 
+import android.os.AsyncTask
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.sjmarsh.movies2mobile.data.MovieDatabase
+import com.sjmarsh.movies2mobile.data.entities.MovieEntity
 
 import com.sjmarsh.movies2mobile.databinding.ActivityMainBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 

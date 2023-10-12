@@ -1,11 +1,11 @@
 package com.sjmarsh.movies2mobile.models
 
 import com.squareup.moshi.Json
-import java.util.*
+import java.util.Date
 
 class MovieModel (
-    override val id: Int?,
-    val title: String? = "",
+    override val id: Int,
+    val title: String = "",
     val description: String? = "",
     val releaseYear: String? = "",
     val category: String? = "",

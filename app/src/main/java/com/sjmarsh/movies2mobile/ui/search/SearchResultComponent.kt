@@ -10,7 +10,11 @@ import com.sjmarsh.movies2mobile.R
 import com.sjmarsh.movies2mobile.data.IDataService
 import com.sjmarsh.movies2mobile.data.MovieSortBy
 import com.sjmarsh.movies2mobile.models.ModelBase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -42,10 +46,15 @@ class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintL
         searchViewModel.searchContext = _searchContext
 
         runBlocking {
-            searchViewModel.search()
+            coroutineScope {
+                val searchAsync = async(Dispatchers.IO) { searchViewModel.search() }
+                withContext(Dispatchers.IO){
+                    searchAsync.await()
+                    updateSearchResults(searchViewModel)
+                }
+            }
         }
 
-        updateSearchResults(searchViewModel)
         return searchViewModel.hasSearchResults
     }
 

@@ -12,7 +12,11 @@ import com.sjmarsh.movies2mobile.R
 import com.sjmarsh.movies2mobile.data.IDataService
 import com.sjmarsh.movies2mobile.data.MovieSortBy
 import com.sjmarsh.movies2mobile.databinding.FragmentMoviesBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 
 class MovieFragment : Fragment() {
@@ -56,7 +60,12 @@ class MovieFragment : Fragment() {
                 }
 
                 runBlocking {
-                    _categories = dataService.getMovieCategories()
+                    coroutineScope {
+                        val getCategoriesAsync = async(Dispatchers.IO) { dataService.getMovieCategories() }
+                        withContext(Dispatchers.IO){
+                            _categories = getCategoriesAsync.await()
+                        }
+                    }
                 }
                 _filterMenu = menu.findItem(R.id.miFilter)
                 if(_filterMenu != null){
