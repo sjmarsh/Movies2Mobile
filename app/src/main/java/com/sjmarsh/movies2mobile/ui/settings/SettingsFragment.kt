@@ -19,6 +19,8 @@ import com.sjmarsh.movies2mobile.data.MovieDatabase
 import com.sjmarsh.movies2mobile.data.entities.ActorEntity
 import com.sjmarsh.movies2mobile.data.entities.MovieEntity
 import com.sjmarsh.movies2mobile.databinding.FragmentSettingsBinding
+import com.sjmarsh.movies2mobile.ui.extensions.toDatabaseDate
+import com.sjmarsh.movies2mobile.ui.extensions.toDisplayDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -119,7 +121,7 @@ class SettingsFragment() : Fragment() {
                                     m.format,
                                     m.runningTime,
                                     m.rating,
-                                    m.dateAdded.toString(),
+                                    m.dateAdded.toDatabaseDate(),
                                     m.coverArt
                                 )
                             }
@@ -134,7 +136,7 @@ class SettingsFragment() : Fragment() {
                                     a.sex,
                                     a.photo,
                                     a.fullName,
-                                    a.dateOfBirth.toString()
+                                    a.dateOfBirth.toDatabaseDate()
                                 )
                             }
                             db.actorDao().initActors(actorEntities)
