@@ -15,6 +15,5 @@ class MovieModel (
     val rating: Int? = 0,
     val dateAdded: Date? = null,
     @Json(ignore = true)
-    val coverArt: String? = "",
-    val actors: List<ModelBase>?
+    val coverArt: String? = ""
 ) : ModelBase(id)

@@ -50,11 +50,11 @@ class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintL
                 val searchAsync = async(Dispatchers.IO) { searchViewModel.search() }
                 withContext(Dispatchers.IO){
                     searchAsync.await()
-                    updateSearchResults(searchViewModel)
                 }
             }
         }
 
+        updateSearchResults(searchViewModel)
         return searchViewModel.hasSearchResults
     }
 
@@ -63,7 +63,12 @@ class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintL
         searchViewModel.searchContext = _searchContext
 
         runBlocking {
-            searchViewModel.searchById(id)
+            coroutineScope {
+                val searchAsync = async(Dispatchers.IO) { searchViewModel.searchById(id) }
+                withContext(Dispatchers.IO) {
+                    searchAsync.await()
+                }
+            }
         }
 
         updateSearchResults(searchViewModel)

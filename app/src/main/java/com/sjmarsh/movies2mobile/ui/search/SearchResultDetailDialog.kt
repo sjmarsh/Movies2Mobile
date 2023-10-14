@@ -1,5 +1,6 @@
 package com.sjmarsh.movies2mobile.ui.search
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,11 +24,9 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
-class SearchResultDetailDialog(model: ModelBase, dataService: IDataService): DialogFragment() {
+class SearchResultDetailDialog(private val model: ModelBase, private val dataService: IDataService): DialogFragment() {
 
-    private val _model = model
-    private val _dataService = dataService
-
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         // include this if round corners required
@@ -41,16 +40,16 @@ class SearchResultDetailDialog(model: ModelBase, dataService: IDataService): Dia
         val cgDetailItems = view.findViewById<ChipGroup>(R.id.cgDetailItems)
         val btnClose = view.findViewById<Button>(R.id.btnCloseMovieDetail)
 
-        if(_model is MovieModel){
-            txtDetailHeader?.text = _model.title
-            txtDetail?.text = _model.description
-            txtDateAdded?.text = "Date Added: ${_model.dateAdded.toDisplayDate()}"
-            addActorSummaries(cgDetailItems, _model)
+        if(model is MovieModel){
+            txtDetailHeader?.text = model.title
+            txtDetail?.text = model.description
+            txtDateAdded?.text = "Date Added: ${model.dateAdded.toDisplayDate()}"
+            addActorSummaries(cgDetailItems, model)
         }
-        if(_model is ActorModel){
-            txtDetailHeader?.text = _model.fullName
-            txtDetail?.text = "${_model.sex} - ${_model.dateOfBirth.toDisplayDate()}"
-            addMovieSummaries(cgDetailItems, _model)
+        if(model is ActorModel){
+            txtDetailHeader?.text = model.fullName
+            txtDetail?.text = "${model.sex} - ${model.dateOfBirth.toDisplayDate()}"
+            addMovieSummaries(cgDetailItems, model)
         }
 
         btnClose.setOnClickListener {
@@ -67,15 +66,15 @@ class SearchResultDetailDialog(model: ModelBase, dataService: IDataService): Dia
     }
 // TODO  this should use it's own ViewModel rather than call data service directly!
     private fun addActorSummaries(cgDetailItems: ChipGroup, movieModel: MovieModel) {
-        if(movieModel.actors != null){
-            runBlocking {
-                coroutineScope {
-                    val getActorsByIdsAsync = async(Dispatchers.IO) { _dataService.getActorsByIds(movieModel.actors.map { a -> a.id}) }
-                    withContext(Dispatchers.IO) {
-                        val actors = getActorsByIdsAsync.await()
-                        actors.forEach {
-                            addChipToChipGroup(cgDetailItems, it.fullName, it.id, R.id.navigation_actors)
-                        }
+
+        runBlocking {
+            coroutineScope {
+                val getActorsForMovieAsync = async(Dispatchers.IO) { dataService.getActorsByMovieId(movieModel.id) }
+
+                withContext(Dispatchers.IO) {
+                    val actors = getActorsForMovieAsync.await()
+                    actors.forEach {
+                        addChipToChipGroup(cgDetailItems, it.fullName, it.id, R.id.navigation_actors)
                     }
                 }
             }
@@ -83,9 +82,10 @@ class SearchResultDetailDialog(model: ModelBase, dataService: IDataService): Dia
     }
 
     private fun addMovieSummaries(cgDetailItems: ChipGroup, actorModel: ActorModel) {
+
         runBlocking {
             coroutineScope {
-                val getMoviesByActorIdAsync = async(Dispatchers.IO) { _dataService.getMoviesByActorId(actorModel.id) }
+                val getMoviesByActorIdAsync = async(Dispatchers.IO) { dataService.getMoviesByActorId(actorModel.id) }
                 withContext(Dispatchers.IO) {
                     val movies = getMoviesByActorIdAsync.await()
                     movies.forEach{

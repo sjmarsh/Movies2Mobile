@@ -1,27 +1,28 @@
-package com.sjmarsh.movies2mobile.data
+package com.sjmarsh.movies2mobile.data.fileStorage
 
 import android.content.Context
 import android.os.Environment
 import android.util.Log
-import com.sjmarsh.movies2mobile.models.ActorModel
-import com.sjmarsh.movies2mobile.models.ImportModel
-import com.sjmarsh.movies2mobile.models.MovieModel
+import com.sjmarsh.movies2mobile.data.JsonToModel
+import com.sjmarsh.movies2mobile.data.entities.ActorEntity
+import com.sjmarsh.movies2mobile.data.fileStorage.entities.ImportEntity
+import com.sjmarsh.movies2mobile.data.fileStorage.entities.MovieWithActorsEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 
-class DataStoreFileBased(context: Context, jsonToModel: IJsonToModel) : IDataStore {
+class MovieFile(context: Context) {
 
-    private val _jsonToModel : IJsonToModel = jsonToModel
+    private val _jsonToModel = JsonToModel()
     private var dataFilePath: String = ""
-    private var importData: ImportModel? = null
+    private var importData: ImportEntity? = null
 
     init {
         dataFilePath = context.filesDir.path
     }
 
-    override suspend fun movies() : List<MovieModel>{
+    suspend fun movies() : List<MovieWithActorsEntity>{
         val allData = loadAllDataAsync()
         var movies = allData.movies
         if(movies == null) {
@@ -30,7 +31,7 @@ class DataStoreFileBased(context: Context, jsonToModel: IJsonToModel) : IDataSto
         return movies
     }
 
-    override suspend fun actors() : List<ActorModel> {
+    suspend fun actors() : List<ActorEntity> {
         val allData = loadAllDataAsync()
         var actors = allData.actors
         if(actors == null) {
@@ -39,18 +40,18 @@ class DataStoreFileBased(context: Context, jsonToModel: IJsonToModel) : IDataSto
         return actors
     }
 
-    private suspend fun loadAllDataAsync() : ImportModel = withContext(Dispatchers.IO) {
+    private suspend fun loadAllDataAsync() : ImportEntity = withContext(Dispatchers.IO) {
         loadAllData()
     }
 
-    private fun loadAllData(): ImportModel {
+    private fun loadAllData(): ImportEntity {
 
         if(importData !== null){
-            Log.i("DataStore", "Using cached data")
-            return importData as ImportModel
+            Log.i("MovieFile", "Using cached data")
+            return importData as ImportEntity
         }
 
-        Log.i("DataStore", "Loading data from file")
+        Log.i("MovieFile", "Loading data from file")
 
         if(isExternalStorageAvailable) {
             val moviesFilePath = dataFilePath + "/${Constants.MOVIE_DATA_FILE}"
@@ -62,18 +63,18 @@ class DataStoreFileBased(context: Context, jsonToModel: IJsonToModel) : IDataSto
                     importData = _jsonToModel.convert(moviesJson)
 
                 } catch (e: Exception) {
-                    e.localizedMessage?.let { Log.e("DataService", it) }
+                    e.localizedMessage?.let { Log.e("MovieFile", it) }
                     when(e){
                         // TODO - need to raise message in UI
                         is IOException -> {
-                            Log.i("DataService","File not found or could not be read")
+                            Log.i("MovieFile","File not found or could not be read")
                         }
                     }
                 }
             }
         }
 
-        return importData?: ImportModel(listOf(), listOf())
+        return importData?: ImportEntity(listOf(), listOf())
     }
 
     private val isExternalStorageAvailable: Boolean get() {

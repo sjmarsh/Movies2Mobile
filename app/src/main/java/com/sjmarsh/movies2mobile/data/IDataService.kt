@@ -8,7 +8,7 @@ interface IDataService {
     suspend fun searchActors(name: String?): List<ActorModel>
     suspend fun getMovieCategories(): List<String>
     suspend fun getActorsById(actorId: Int?): List<ActorModel>
-    suspend fun getActorsByIds(actorIds: List<Int?>): List<ActorModel>
+    suspend fun getActorsByMovieId(movieId: Int?): List<ActorModel>
     suspend fun getMoviesByActorId(actorId: Int?): List<MovieModel>
     suspend fun getMoviesByMovieId(movieId: Int?): List<MovieModel>
 }

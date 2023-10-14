@@ -1,4 +1,4 @@
-package com.sjmarsh.movies2mobile.data.daos
+package com.sjmarsh.movies2mobile.data.databaseStorage.daos
 
 import androidx.room.Dao
 import androidx.room.Insert

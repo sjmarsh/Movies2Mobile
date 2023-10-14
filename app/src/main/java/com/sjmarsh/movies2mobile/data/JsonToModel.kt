@@ -1,7 +1,7 @@
 package com.sjmarsh.movies2mobile.data
 
 import android.util.Log
-import com.sjmarsh.movies2mobile.models.ImportModel
+import com.sjmarsh.movies2mobile.data.fileStorage.entities.ImportEntity
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonDataException
@@ -16,8 +16,8 @@ import java.util.TimeZone
 
 class JsonToModel : IJsonToModel {
 
-    override fun convert(jsonString: String) : ImportModel? {
-        var model : ImportModel? = null;
+    override fun convert(jsonString: String) : ImportEntity? {
+        var model : ImportEntity? = null;
         try {
             val customDateAdapter: Any = object : Any() {
                 var dateFormat: DateFormat? = null
@@ -45,7 +45,7 @@ class JsonToModel : IJsonToModel {
                 .add(customDateAdapter)
                 .addLast(KotlinJsonAdapterFactory())
                 .build()
-            val jsonAdapter: JsonAdapter<ImportModel> = moshi.adapter(ImportModel::class.java)
+            val jsonAdapter: JsonAdapter<ImportEntity> = moshi.adapter(ImportEntity::class.java)
 
             model = jsonAdapter.fromJson(jsonString)
         }

@@ -1,7 +1,7 @@
 package com.sjmarsh.movies2mobile.data
 
-import com.sjmarsh.movies2mobile.models.ImportModel
+import com.sjmarsh.movies2mobile.data.fileStorage.entities.ImportEntity
 
 interface IJsonToModel {
-    fun convert(jsonString: String): ImportModel?
+    fun convert(jsonString: String): ImportEntity?
 }

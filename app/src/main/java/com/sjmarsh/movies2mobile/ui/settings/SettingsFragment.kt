@@ -13,15 +13,14 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.sjmarsh.movies2mobile.data.Constants
+import com.sjmarsh.movies2mobile.data.fileStorage.Constants
 import com.sjmarsh.movies2mobile.data.IJsonToModel
-import com.sjmarsh.movies2mobile.data.MovieDatabase
+import com.sjmarsh.movies2mobile.data.databaseStorage.MovieDatabase
 import com.sjmarsh.movies2mobile.data.entities.ActorEntity
 import com.sjmarsh.movies2mobile.data.entities.MovieActorEntity
 import com.sjmarsh.movies2mobile.data.entities.MovieEntity
+import com.sjmarsh.movies2mobile.data.fileStorage.entities.MovieWithActorsEntity
 import com.sjmarsh.movies2mobile.databinding.FragmentSettingsBinding
-import com.sjmarsh.movies2mobile.models.MovieModel
-import com.sjmarsh.movies2mobile.ui.extensions.toDatabaseDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -104,14 +103,14 @@ class SettingsFragment() : Fragment() {
 
     private fun writeToLocalAppDatabase(jsonString: String) {
 
-        val importModel = _jsonToModel.convert(jsonString)
-        if(importModel !== null) {
+        val importEntity = _jsonToModel.convert(jsonString)
+        if(importEntity !== null) {
             val db = this.context?.let { MovieDatabase(it) } // TODO try to inject this
             lifecycleScope.launch(Dispatchers.IO) {
                 db?.runInTransaction {
                     run {
-                        if (importModel.movies !== null) {
-                            val movieEntities = importModel.movies!!.map { m ->
+                        if (importEntity.movies !== null) {
+                            val movieEntities = importEntity.movies!!.map { m ->
                                 MovieEntity(
                                     m.id,
                                     m.title,
@@ -122,19 +121,19 @@ class SettingsFragment() : Fragment() {
                                     m.format,
                                     m.runningTime,
                                     m.rating,
-                                    m.dateAdded.toDatabaseDate(),
+                                    m.dateAdded,
                                     m.coverArt
                                 )
                             }
                             db.movieDao().initMovies(movieEntities)
 
-                            val movieActors = getMovieActors(importModel.movies)
+                            val movieActors = getMovieActors(importEntity.movies)
                             if(movieActors !== null) {
                                 db.movieActorDao().initMovieActors(movieActors)
                             }
                         }
-                        if (importModel.actors !== null) {
-                            val actorEntities = importModel.actors!!.map { a ->
+                        if (importEntity.actors !== null) {
+                            val actorEntities = importEntity.actors!!.map { a ->
                                 ActorEntity(
                                     a.id,
                                     a.firstName,
@@ -142,7 +141,7 @@ class SettingsFragment() : Fragment() {
                                     a.sex,
                                     a.photo,
                                     a.fullName,
-                                    a.dateOfBirth.toDatabaseDate()
+                                    a.dateOfBirth
                                 )
                             }
                             db.actorDao().initActors(actorEntities)
@@ -153,10 +152,14 @@ class SettingsFragment() : Fragment() {
         }
     }
 
-    private fun getMovieActors(movies: List<MovieModel>?) : List<MovieActorEntity>? {
+    private fun getMovieActors(movies: List<MovieWithActorsEntity>?) : List<MovieActorEntity>? {
         if(movies == null) return null
         val movieActors = ArrayList<MovieActorEntity>()
-        movies.forEach { m -> if(m.actors !== null) m.actors.forEach { a -> movieActors.add(MovieActorEntity(m.id, a.id!!)) }}
+        movies.forEach { m ->
+            m.actors?.forEach { a -> movieActors.add(
+                MovieActorEntity(m.id, a.id)
+            ) }
+        }
         return movieActors.toList()
     }
 

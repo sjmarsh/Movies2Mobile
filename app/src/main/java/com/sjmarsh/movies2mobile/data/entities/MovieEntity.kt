@@ -3,7 +3,6 @@ package com.sjmarsh.movies2mobile.data.entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.Date
 
 @Entity(tableName = "movie")
 class MovieEntity (
