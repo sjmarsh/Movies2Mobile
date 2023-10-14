@@ -8,7 +8,6 @@ import com.sjmarsh.movies2mobile.data.IJsonToModel
 import com.sjmarsh.movies2mobile.data.JsonToModel
 import com.sjmarsh.movies2mobile.data.databaseStorage.DbDataStorage
 import com.sjmarsh.movies2mobile.data.fileStorage.FileDataStorage
-import com.sjmarsh.movies2mobile.data.fileStorage.MovieFile
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext.startKoin
@@ -30,8 +29,8 @@ class MainApplication: Application() {
     // dependency injection setup
     private var appModule = module {
         single<IJsonToModel> { JsonToModel() }
-        //single<IDataStorage> { FileDataStorage(MovieFile(androidContext())) }
-        single<IDataStorage> { DbDataStorage(androidContext()) }
+        //single<IDataStorage> { FileDataStorage(androidContext()) }
+        single<IDataStorage> { DbDataStorage(androidContext(), get()) }
         single<IDataService> { DataService(get()) }
     }
 }

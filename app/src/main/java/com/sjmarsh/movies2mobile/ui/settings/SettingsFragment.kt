@@ -12,19 +12,14 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
-import com.sjmarsh.movies2mobile.data.fileStorage.Constants
-import com.sjmarsh.movies2mobile.data.IJsonToModel
-import com.sjmarsh.movies2mobile.data.databaseStorage.MovieDatabase
-import com.sjmarsh.movies2mobile.data.entities.ActorEntity
-import com.sjmarsh.movies2mobile.data.entities.MovieActorEntity
-import com.sjmarsh.movies2mobile.data.entities.MovieEntity
-import com.sjmarsh.movies2mobile.data.fileStorage.entities.MovieWithActorsEntity
+import com.sjmarsh.movies2mobile.data.IDataStorage
 import com.sjmarsh.movies2mobile.databinding.FragmentSettingsBinding
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
-import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
@@ -32,7 +27,7 @@ import java.nio.charset.StandardCharsets
 
 class SettingsFragment() : Fragment() {
 
-    private val _jsonToModel : IJsonToModel by inject()
+    private val _dataStorage : IDataStorage by inject()
 
     private var _binding: FragmentSettingsBinding? = null
 
@@ -74,8 +69,15 @@ class SettingsFragment() : Fragment() {
 
         try {
             val jsonString = getMovieFileContentJson(uri)
-            writeToLocalAppFileStorage(jsonString)
-            writeToLocalAppDatabase(jsonString)
+            runBlocking {
+                coroutineScope {
+                    val initializeLocalStorageAsync = async(Dispatchers.IO) { _dataStorage.initializeLocalStorage(jsonString) }
+
+                    withContext(Dispatchers.IO) {
+                        initializeLocalStorageAsync.await()
+                    }
+                }
+            }
         } catch (e: IOException) {
             e.localizedMessage?.let { Log.e("Select Movie Data", it) }
             Toast.makeText(this.context, "Fail to read or write file", Toast.LENGTH_SHORT)
@@ -91,76 +93,6 @@ class SettingsFragment() : Fragment() {
         inputStream.read(bytes)
         inputStream.close()
         return String(bytes, StandardCharsets.UTF_8)
-    }
-
-    private fun writeToLocalAppFileStorage(jsonString: String) {
-        val targetFilePath = this.context?.filesDir?.path + "/${Constants.MOVIE_DATA_FILE}"
-        File(targetFilePath).writeText(jsonString)
-
-        Toast.makeText(this.context, "Movies data imported", Toast.LENGTH_SHORT)
-            .show()
-    }
-
-    private fun writeToLocalAppDatabase(jsonString: String) {
-
-        val importEntity = _jsonToModel.convert(jsonString)
-        if(importEntity !== null) {
-            val db = this.context?.let { MovieDatabase(it) } // TODO try to inject this
-            lifecycleScope.launch(Dispatchers.IO) {
-                db?.runInTransaction {
-                    run {
-                        if (importEntity.movies !== null) {
-                            val movieEntities = importEntity.movies!!.map { m ->
-                                MovieEntity(
-                                    m.id,
-                                    m.title,
-                                    m.description,
-                                    m.releaseYear,
-                                    m.category,
-                                    m.classification,
-                                    m.format,
-                                    m.runningTime,
-                                    m.rating,
-                                    m.dateAdded,
-                                    m.coverArt
-                                )
-                            }
-                            db.movieDao().initMovies(movieEntities)
-
-                            val movieActors = getMovieActors(importEntity.movies)
-                            if(movieActors !== null) {
-                                db.movieActorDao().initMovieActors(movieActors)
-                            }
-                        }
-                        if (importEntity.actors !== null) {
-                            val actorEntities = importEntity.actors!!.map { a ->
-                                ActorEntity(
-                                    a.id,
-                                    a.firstName,
-                                    a.lastName,
-                                    a.sex,
-                                    a.photo,
-                                    a.fullName,
-                                    a.dateOfBirth
-                                )
-                            }
-                            db.actorDao().initActors(actorEntities)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun getMovieActors(movies: List<MovieWithActorsEntity>?) : List<MovieActorEntity>? {
-        if(movies == null) return null
-        val movieActors = ArrayList<MovieActorEntity>()
-        movies.forEach { m ->
-            m.actors?.forEach { a -> movieActors.add(
-                MovieActorEntity(m.id, a.id)
-            ) }
-        }
-        return movieActors.toList()
     }
 
     override fun onDestroyView() {
