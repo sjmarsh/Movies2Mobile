@@ -78,6 +78,8 @@ class SettingsFragment() : Fragment() {
                     }
                 }
             }
+            Toast.makeText(this.context, "Movies data imported", Toast.LENGTH_SHORT)
+                .show()
         } catch (e: IOException) {
             e.localizedMessage?.let { Log.e("Select Movie Data", it) }
             Toast.makeText(this.context, "Fail to read or write file", Toast.LENGTH_SHORT)
