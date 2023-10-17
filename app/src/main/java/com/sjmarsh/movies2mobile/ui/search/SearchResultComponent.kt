@@ -23,71 +23,94 @@ class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintL
 {
     private val _dataService by inject<IDataService>()
     private val _searchContext: SearchContext?
+    private var _isLoadingResults: Boolean = false
+    private var _searchViewModel: SearchViewModel
+    private var _lstSearchResults: RecyclerView?
 
     init {
         inflate(context, R.layout.search_result_component, this)
 
-        val lstSearchResults = findViewById<RecyclerView>(R.id.lstSearchResults)
-        if(lstSearchResults != null) {
-            lstSearchResults.layoutManager = LinearLayoutManager(this.context)
+        _lstSearchResults = findViewById(R.id.lstSearchResults)
+        if(_lstSearchResults !== null) {
+            _lstSearchResults!!.layoutManager = LinearLayoutManager(this.context)
+            _lstSearchResults!!.adapter = SearchRecyclerAdapter { searchResult ->
+                showItemDetail(searchResult, _dataService)
+            }
+            _lstSearchResults!!.recycledViewPool.clear()
         }
-
         _searchContext = getSearchContext(context, attrs)
+
+        _searchViewModel = SearchViewModel(_dataService)
+
+        _lstSearchResults!!.addOnScrollListener(object :
+            PaginationScrollListener(_lstSearchResults!!.layoutManager as LinearLayoutManager) {
+            override fun loadMoreItems() {
+                _isLoadingResults = true
+                runBlocking {
+                    coroutineScope {
+                        val scrollSearchAsync = async(Dispatchers.IO) { _searchViewModel.scrollSearch() }
+                        withContext(Dispatchers.IO) {
+                            scrollSearchAsync.await()
+                        }
+                    }
+                }
+                updateSearchResults(_searchViewModel)
+                _isLoadingResults = false
+            }
+
+            override fun isLastPage(): Boolean = _searchViewModel.isAllDataLoaded()
+            override fun isLoading(): Boolean = _isLoadingResults;
+        })
 
         search("")
     }
 
     fun search(query: String?, categoryFilter: String? = null, movieSortBy: MovieSortBy? = null) : Boolean {
-
-        val searchViewModel = SearchViewModel(_dataService)
-        searchViewModel.searchText = query
-        searchViewModel.categoryFilter = categoryFilter
-        searchViewModel.movieSortBy = movieSortBy
-        searchViewModel.searchContext = _searchContext
+        _searchViewModel.searchText = query
+        _searchViewModel.categoryFilter = categoryFilter
+        _searchViewModel.movieSortBy = movieSortBy
+        _searchViewModel.searchContext = _searchContext
 
         runBlocking {
             coroutineScope {
-                val searchAsync = async(Dispatchers.IO) { searchViewModel.search() }
+                val searchAsync = async(Dispatchers.IO) { _searchViewModel.search() }
                 withContext(Dispatchers.IO){
                     searchAsync.await()
                 }
             }
         }
 
-        updateSearchResults(searchViewModel)
-        return searchViewModel.hasSearchResults
+        setSearchResults(_searchViewModel)
+
+        return _searchViewModel.hasSearchResults
     }
 
     fun searchById(id: Int?) : Boolean {
-        val searchViewModel = SearchViewModel(_dataService)
-        searchViewModel.searchContext = _searchContext
+        _searchViewModel.searchContext = _searchContext
 
         runBlocking {
             coroutineScope {
-                val searchAsync = async(Dispatchers.IO) { searchViewModel.searchById(id) }
+                val searchAsync = async(Dispatchers.IO) { _searchViewModel.searchById(id) }
                 withContext(Dispatchers.IO) {
                     searchAsync.await()
                 }
             }
         }
 
-        updateSearchResults(searchViewModel)
-        return searchViewModel.hasSearchResults
+        setSearchResults(_searchViewModel)
+        return _searchViewModel.hasSearchResults
+    }
+
+    private fun setSearchResults(searchViewModel: SearchViewModel) {
+        val searchRecyclerAdapter = _lstSearchResults!!.adapter as SearchRecyclerAdapter
+        searchRecyclerAdapter.setSearchContext(_searchContext)
+        searchRecyclerAdapter.setSearchResults(searchViewModel.searchResults)
     }
 
     private fun updateSearchResults(searchViewModel: SearchViewModel) {
-        val searchRecyclerAdapter = SearchRecyclerAdapter { searchResult ->
-            showItemDetail(searchResult, _dataService)
-        }
-
-        val lstSearchResults = findViewById<RecyclerView>(R.id.lstSearchResults)
-        if (lstSearchResults != null) {
-            lstSearchResults.layoutManager = LinearLayoutManager(this.context)
-        }
-
-        lstSearchResults.adapter = searchRecyclerAdapter
+        val searchRecyclerAdapter = _lstSearchResults!!.adapter as SearchRecyclerAdapter
         searchRecyclerAdapter.setSearchContext(_searchContext)
-        searchRecyclerAdapter.setSearchResults(searchViewModel.searchResults)
+        searchRecyclerAdapter.updateSearchResults(searchViewModel.searchResults)
     }
 
     private fun getSearchContext(context: Context, attrs: AttributeSet): SearchContext? {
@@ -106,5 +129,24 @@ class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintL
         val fragmentManager = (this.context as FragmentActivity).supportFragmentManager
         SearchResultDetailDialog(model, dataService).show(fragmentManager, "SearchResultDetailDialog")
     }
+}
+
+abstract class PaginationScrollListener(private val layoutManager: LinearLayoutManager) : RecyclerView.OnScrollListener() {
+    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+        super.onScrolled(recyclerView, dx, dy)
+        val visibleItemCount: Int = layoutManager.childCount
+        val totalItemCount: Int = layoutManager.itemCount
+        val firstVisibleItemPosition: Int = layoutManager.findFirstVisibleItemPosition()
+
+        if(!isLoading() && !isLastPage()) {
+            if(visibleItemCount + firstVisibleItemPosition >= totalItemCount && firstVisibleItemPosition >= 0) {
+                loadMoreItems()
+            }
+        }
+    }
+
+    protected abstract fun loadMoreItems()
+    abstract fun isLastPage(): Boolean
+    abstract fun isLoading(): Boolean
 }
 

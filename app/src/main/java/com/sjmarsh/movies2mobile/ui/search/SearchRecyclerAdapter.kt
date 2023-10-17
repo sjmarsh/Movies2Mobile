@@ -15,14 +15,27 @@ class SearchRecyclerAdapter(private val onItemClicked: (ModelBase) -> Unit)
     : RecyclerView.Adapter<SearchRecyclerAdapter.ViewHolder>(){
 
     private var _searchContext: SearchContext? = SearchContext.MOVIE
-    private var _searchResults: List<ModelBase> = listOf() // todo add to constructor or public prop?
+    private var _searchResults: MutableList<ModelBase> = mutableListOf() // todo add to constructor or public prop?
 
     fun setSearchContext(searchContext: SearchContext?) {
         _searchContext = searchContext
     }
 
     fun setSearchResults(searchResults: List<ModelBase>) {
-        _searchResults = searchResults
+        _searchResults = searchResults.toMutableList()
+        super.notifyItemRangeChanged(0, _searchResults.count())
+    }
+
+    fun updateSearchResults(searchResults: List<ModelBase>) {
+        if(!_searchResults.any()){
+            setSearchResults(searchResults)
+        }
+        else {
+            val newItemsStartPosition = _searchResults.count()
+            val newItems = searchResults.filter { s -> _searchResults.firstOrNull { sr -> sr.id == s.id } == null }
+            _searchResults.addAll(newItems)
+            super.notifyItemRangeInserted(newItemsStartPosition, newItems.count())
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchRecyclerAdapter.ViewHolder {

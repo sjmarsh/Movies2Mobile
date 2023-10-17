@@ -9,6 +9,7 @@ import androidx.room.Transaction
 import com.sjmarsh.movies2mobile.data.IActorDao
 import com.sjmarsh.movies2mobile.data.entities.ActorEntity
 import com.sjmarsh.movies2mobile.data.entities.EntityBase
+import com.sjmarsh.movies2mobile.data.entities.SearchResultEntity
 
 @Dao
 interface ActorDao : IActorDao {
@@ -18,11 +19,17 @@ interface ActorDao : IActorDao {
         return getAllFromDb()
     }
 
-    @Query("SELECT * FROM actor WHERE fullName Like :name ORDER BY lastName ASC")
-    fun searchActorsFromDb(name: String?): List<ActorEntity>
-    override suspend fun searchActors(name: String?): List<ActorEntity>{
+    @Query("SELECT * FROM actor WHERE fullName Like :name ORDER BY lastName ASC LIMIT :take OFFSET :skip")
+    fun searchActorsFromDb(name: String?, skip: Int, take: Int): List<ActorEntity>
+
+    @Query("SELECT COUNT(*) FROM actor WHERE fullName Like :name")
+    fun countSearchActorsFromDb(name: String?): Int
+
+    override suspend fun searchActors(name: String?, skip: Int, take: Int): SearchResultEntity<ActorEntity> {
         val safeName = if(name == null) "%%" else "%$name%"
-        return searchActorsFromDb(safeName)
+        val count = countSearchActorsFromDb(safeName)
+        val result = searchActorsFromDb(safeName, skip, take)
+        return SearchResultEntity(result, count)
     }
 
     @Query("SELECT * FROM actor WHERE id = :actorId")

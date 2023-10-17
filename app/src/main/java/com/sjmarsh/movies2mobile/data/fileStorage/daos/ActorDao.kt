@@ -2,6 +2,7 @@ package com.sjmarsh.movies2mobile.data.fileStorage.daos
 
 import com.sjmarsh.movies2mobile.data.IActorDao
 import com.sjmarsh.movies2mobile.data.entities.ActorEntity
+import com.sjmarsh.movies2mobile.data.entities.SearchResultEntity
 import com.sjmarsh.movies2mobile.data.fileStorage.MovieFile
 
 class ActorDao(private val movieFile: MovieFile) : IActorDao {
@@ -10,15 +11,17 @@ class ActorDao(private val movieFile: MovieFile) : IActorDao {
         return movieFile.actors()
     }
 
-    override suspend fun searchActors(name: String?): List<ActorEntity> {
+    override suspend fun searchActors(name: String?, skip: Int, take: Int): SearchResultEntity<ActorEntity> {
         val actors = getAll()
-        return if(name.isNullOrEmpty()){
+        val result = if(name.isNullOrEmpty()){
             actors.sortedBy { a -> a.lastName }
         } else {
             actors.filter { a -> ((a.fullName != null && a.fullName.lowercase().contains(name.lowercase()))) }
                 .toList()
                 .sortedBy { a -> a.lastName }
         }
+        val count = result!!.size
+        return SearchResultEntity(result.subList(skip, take), count)
     }
 
     override suspend fun getActorsById(actorId: Int?): List<ActorEntity> {

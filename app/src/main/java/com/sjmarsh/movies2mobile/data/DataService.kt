@@ -3,17 +3,24 @@ package com.sjmarsh.movies2mobile.data
 import com.sjmarsh.movies2mobile.data.mappers.toModel
 import com.sjmarsh.movies2mobile.models.ActorModel
 import com.sjmarsh.movies2mobile.models.MovieModel
+import com.sjmarsh.movies2mobile.models.SearchResult
 
 class DataService(private val dataStorage: IDataStorage) : IDataService {
 
-    override suspend fun searchMovies(title: String?, category: String?, movieSortBy: MovieSortBy?): List<MovieModel> {
-        val movieEntities = dataStorage.movieDao().searchMovies(title, category, movieSortBy);
-        return movieEntities.map { m -> m.toModel() }
+    override suspend fun searchMovies(title: String?, category: String?, movieSortBy: MovieSortBy?, skip: Int, take: Int): SearchResult<MovieModel> {
+        val searchResultEntity = dataStorage.movieDao().searchMovies(title, category, movieSortBy, skip, take);
+        return SearchResult(
+            searchResultEntity.results.map { m -> m.toModel() },
+            searchResultEntity.totalCount
+        )
     }
 
-    override suspend fun searchActors(name: String?): List<ActorModel> {
-        val actorEntities = dataStorage.actorDao().searchActors(name)
-        return actorEntities.map { a -> a.toModel() }
+    override suspend fun searchActors(name: String?, skip: Int, take: Int): SearchResult<ActorModel> {
+        val searchResultEntity = dataStorage.actorDao().searchActors(name, skip, take)
+        return SearchResult(
+            searchResultEntity.results.map { a -> a.toModel()},
+            searchResultEntity.totalCount
+        )
     }
 
     private var categories: List<String>? = null

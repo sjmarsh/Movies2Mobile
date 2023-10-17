@@ -3,6 +3,7 @@ package com.sjmarsh.movies2mobile.data.fileStorage.daos
 import com.sjmarsh.movies2mobile.data.IMovieDao
 import com.sjmarsh.movies2mobile.data.MovieSortBy
 import com.sjmarsh.movies2mobile.data.entities.MovieEntity
+import com.sjmarsh.movies2mobile.data.entities.SearchResultEntity
 import com.sjmarsh.movies2mobile.data.fileStorage.MovieFile
 import com.sjmarsh.movies2mobile.data.fileStorage.entities.MovieWithActorsEntity
 
@@ -11,7 +12,7 @@ class MovieDao(private val movieFile: MovieFile) : IMovieDao {
         return movieFile.movies().map { m -> m.mapToMovieEntity() }
     }
 
-    override suspend fun searchMovies(title: String?, category: String?, movieSortBy: MovieSortBy?): List<MovieEntity> {
+    override suspend fun searchMovies(title: String?, category: String?, movieSortBy: MovieSortBy?, skip: Int, take: Int): SearchResultEntity<MovieEntity> {
         val movies = getAll()
         var result: List<MovieEntity>? = if(title.isNullOrEmpty() && category.isNullOrEmpty()) {
             movies
@@ -19,8 +20,10 @@ class MovieDao(private val movieFile: MovieFile) : IMovieDao {
             movies.filter { m ->
                 (title == null || m.title.contains(title, true))
                         && (category == null || category == "" || m.category == category)
-            }.toList()
+            }
         }
+        val totalCount = result!!.size
+        result = result.subList(skip, take)
 
         result = if(movieSortBy == null) {
             result?.sortedBy { m -> m.title }
@@ -28,7 +31,7 @@ class MovieDao(private val movieFile: MovieFile) : IMovieDao {
             getSortedResult(result, movieSortBy)
         }
 
-        return result!!
+        return SearchResultEntity(result!!, totalCount)
     }
 
     override suspend fun getMovieCategories(): List<String> {
