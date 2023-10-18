@@ -9,7 +9,7 @@ Android app for Movies2 movie collection.  Initially this is just a proof of con
 - ~~Add Actors view~~
 - ~~Fix dark mode / power-save mode theme for search result card~~
 - ~~Improve UX around applying filter.  Filter icon should indicate if filter is applied (or  not)~~
-- Data loading/searching should be asynchronous
+- ~~Data loading/searching should be asynchronous~~
 - ~~Add ability to hyperlink between movies and actors~~
 - Add ability to get movie data from a web service (instead of or as well as json file in file system).  
 - Add unit tests - explore how to do this with Kotlin. Project template includes some samples.
