@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import com.sjmarsh.movies2mobile.R
 import com.sjmarsh.movies2mobile.databinding.FragmentActorsBinding
+import com.sjmarsh.movies2mobile.ui.search.DebouncingQueryTextListener
 
 class ActorFragment : Fragment() {
 
@@ -59,15 +60,7 @@ class ActorFragment : Fragment() {
 
         _initActorId = arguments?.getInt("id", 0)
 
-        _searchView?.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return search(query)
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                return search(newText)
-            }
-        })
+        _searchView?.setOnQueryTextListener(DebouncingQueryTextListener(lifecycle) { newText -> search(newText) })
     }
 
     private fun search(query: String?) : Boolean {

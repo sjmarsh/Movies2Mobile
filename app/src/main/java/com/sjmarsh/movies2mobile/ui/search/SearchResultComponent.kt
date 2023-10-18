@@ -2,6 +2,7 @@ package com.sjmarsh.movies2mobile.ui.search
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,7 +19,6 @@ import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-
 class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs), KoinComponent
 {
     private val _dataService by inject<IDataService>()
@@ -32,7 +32,7 @@ class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintL
 
         _lstSearchResults = findViewById(R.id.lstSearchResults)
         if(_lstSearchResults !== null) {
-            _lstSearchResults!!.layoutManager = LinearLayoutManager(this.context)
+            _lstSearchResults!!.layoutManager = WrapContentLinearLayoutManager(this.context)
             _lstSearchResults!!.adapter = SearchRecyclerAdapter { searchResult ->
                 showItemDetail(searchResult, _dataService)
             }
@@ -43,7 +43,7 @@ class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintL
         _searchViewModel = SearchViewModel(_dataService)
 
         _lstSearchResults!!.addOnScrollListener(object :
-            PaginationScrollListener(_lstSearchResults!!.layoutManager as LinearLayoutManager) {
+            PaginationScrollListener(_lstSearchResults!!.layoutManager as WrapContentLinearLayoutManager) {
             override fun loadMoreItems() {
                 _isLoadingResults = true
                 runBlocking {
@@ -131,3 +131,14 @@ class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintL
     }
 }
 
+// ref: https://stackoverflow.com/questions/31759171/recyclerview-and-java-lang-indexoutofboundsexception-inconsistency-detected-in
+class WrapContentLinearLayoutManager(context: Context) : LinearLayoutManager(context) {
+    override fun onLayoutChildren(recycler: RecyclerView.Recycler?, state: RecyclerView.State?) {
+        try {
+            super.onLayoutChildren(recycler, state)
+        }
+        catch (e: IndexOutOfBoundsException) {
+            Log.e("WrapContentLLM", "Index out of bounds in LinearLayoutManager. $e.message")
+        }
+    }
+}

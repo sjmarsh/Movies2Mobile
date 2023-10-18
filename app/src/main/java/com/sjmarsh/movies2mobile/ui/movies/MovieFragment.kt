@@ -1,7 +1,12 @@
 package com.sjmarsh.movies2mobile.ui.movies
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -12,6 +17,7 @@ import com.sjmarsh.movies2mobile.R
 import com.sjmarsh.movies2mobile.data.IDataService
 import com.sjmarsh.movies2mobile.data.MovieSortBy
 import com.sjmarsh.movies2mobile.databinding.FragmentMoviesBinding
+import com.sjmarsh.movies2mobile.ui.search.DebouncingQueryTextListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -111,15 +117,7 @@ class MovieFragment : Fragment() {
 
         this._initMovieId = arguments?.getInt("id", 0)
 
-        _searchView?.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return search(query)
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                return search(newText)
-            }
-        })
+        _searchView?.setOnQueryTextListener(DebouncingQueryTextListener(lifecycle) { newText -> search(newText) })
     }
 
     private fun search(searchText: String?, categoryFilter: String? = null, movieSortBy: MovieSortBy? = null) : Boolean {
@@ -153,5 +151,4 @@ class MovieFragment : Fragment() {
         _searchView?.setOnQueryTextListener(null)
         _binding = null
     }
-
 }
