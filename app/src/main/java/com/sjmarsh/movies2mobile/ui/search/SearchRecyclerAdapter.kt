@@ -14,8 +14,9 @@ import com.sjmarsh.movies2mobile.ui.extensions.toDisplayDate
 class SearchRecyclerAdapter(private val onItemClicked: (ModelBase) -> Unit)
     : RecyclerView.Adapter<SearchRecyclerAdapter.ViewHolder>(){
 
+    private lateinit var _myRecyclerView: RecyclerView
     private var _searchContext: SearchContext? = SearchContext.MOVIE
-    private var _searchResults: MutableList<ModelBase> = mutableListOf() // todo add to constructor or public prop?
+    private var _searchResults: MutableList<ModelBase> = mutableListOf()
 
     fun setSearchContext(searchContext: SearchContext?) {
         _searchContext = searchContext
@@ -34,8 +35,14 @@ class SearchRecyclerAdapter(private val onItemClicked: (ModelBase) -> Unit)
             val newItemsStartPosition = _searchResults.count()
             val newItems = searchResults.filter { s -> _searchResults.firstOrNull { sr -> sr.id == s.id } == null }
             _searchResults.addAll(newItems)
-            super.notifyItemRangeInserted(newItemsStartPosition, newItems.count())
+
+            // need to use post to avoid updating during scroll event
+            _myRecyclerView.post { super.notifyItemRangeInserted(newItemsStartPosition, newItems.count())}
         }
+    }
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        _myRecyclerView = recyclerView
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchRecyclerAdapter.ViewHolder {

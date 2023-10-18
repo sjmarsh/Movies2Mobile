@@ -59,7 +59,7 @@ class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintL
             }
 
             override fun isLastPage(): Boolean = _searchViewModel.isAllDataLoaded()
-            override fun isLoading(): Boolean = _isLoadingResults;
+            override fun isLoading(): Boolean = _isLoadingResults
         })
 
         search("")
@@ -129,24 +129,5 @@ class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintL
         val fragmentManager = (this.context as FragmentActivity).supportFragmentManager
         SearchResultDetailDialog(model, dataService).show(fragmentManager, "SearchResultDetailDialog")
     }
-}
-
-abstract class PaginationScrollListener(private val layoutManager: LinearLayoutManager) : RecyclerView.OnScrollListener() {
-    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-        super.onScrolled(recyclerView, dx, dy)
-        val visibleItemCount: Int = layoutManager.childCount
-        val totalItemCount: Int = layoutManager.itemCount
-        val firstVisibleItemPosition: Int = layoutManager.findFirstVisibleItemPosition()
-
-        if(!isLoading() && !isLastPage()) {
-            if(visibleItemCount + firstVisibleItemPosition >= totalItemCount && firstVisibleItemPosition >= 0) {
-                loadMoreItems()
-            }
-        }
-    }
-
-    protected abstract fun loadMoreItems()
-    abstract fun isLastPage(): Boolean
-    abstract fun isLoading(): Boolean
 }
 
