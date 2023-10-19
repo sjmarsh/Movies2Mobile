@@ -32,12 +32,19 @@ interface MovieDao : IMovieDao {
     override suspend fun searchMovies(title: String?, category: String?, movieSortBy: MovieSortBy?, skip: Int, take: Int): SearchResultEntity<MovieEntity> {
         val safeTitle = if(title == null) "%%" else "%$title%"
         val safeCategory = category ?: ""
-        val safeSortBy = movieSortBy?.toString()?.lowercase() ?: MovieSortBy.Title.toString().lowercase()
+        val safeSortBy = getSafeSortBy(movieSortBy)
         val countQuery = "SELECT COUNT(*) FROM movie WHERE title LIKE ? AND (? = '' OR Category = ?)"
         val totalCount = countSearchMoviesFromDb(SimpleSQLiteQuery(countQuery, arrayOf(safeTitle, safeCategory, safeCategory)))
-        val pagedQuery = "SELECT * FROM movie WHERE title LIKE ? AND (? = '' OR Category = ?) ORDER BY $safeSortBy ASC LIMIT $take OFFSET $skip"
+        val pagedQuery = "SELECT * FROM movie WHERE title LIKE ? AND (? = '' OR Category = ?) ORDER BY $safeSortBy LIMIT $take OFFSET $skip"
         val results = searchMoviesFromDb(SimpleSQLiteQuery(pagedQuery, arrayOf(safeTitle, safeCategory, safeCategory)))
         return SearchResultEntity(results, totalCount)
+    }
+
+    fun getSafeSortBy(movieSortBy: MovieSortBy?) : String {
+        if(movieSortBy == null || movieSortBy == MovieSortBy.Title) {
+            return MovieSortBy.Title.toString().lowercase() + " ASC"
+        }
+        return movieSortBy.toString().lowercase() + " DESC"
     }
 
     @Query("SELECT DISTINCT category FROM movie ORDER BY category ASC")
