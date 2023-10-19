@@ -59,12 +59,14 @@ class ActorFragment : Fragment() {
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         _initActorId = arguments?.getInt("id", 0)
-
         _searchView?.setOnQueryTextListener(DebouncingQueryTextListener(lifecycle) { newText -> search(newText) })
+        if(_initActorId == null || _initActorId == 0) {
+            search("")
+        }
     }
 
     private fun search(query: String?) : Boolean {
-        if(_initActorId != null && _initActorId!! > 0){
+        if(_initActorId != null && _initActorId!! > 0) {
             // id is passed as an argument when navigating from a detail dialog
             return searchById(_initActorId)
         }

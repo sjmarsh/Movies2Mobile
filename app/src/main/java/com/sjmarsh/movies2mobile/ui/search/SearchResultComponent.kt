@@ -61,8 +61,6 @@ class SearchResultComponent(context: Context, attrs: AttributeSet) : ConstraintL
             override fun isLastPage(): Boolean = _searchViewModel.isAllDataLoaded()
             override fun isLoading(): Boolean = _isLoadingResults
         })
-
-        search("")
     }
 
     fun search(query: String?, categoryFilter: String? = null, movieSortBy: MovieSortBy? = null) : Boolean {

@@ -118,6 +118,10 @@ class MovieFragment : Fragment() {
         this._initMovieId = arguments?.getInt("id", 0)
 
         _searchView?.setOnQueryTextListener(DebouncingQueryTextListener(lifecycle) { newText -> search(newText) })
+
+        if(_initMovieId == null || _initMovieId == 0) {
+            search("")
+        }
     }
 
     private fun search(searchText: String?, categoryFilter: String? = null, movieSortBy: MovieSortBy? = null) : Boolean {
