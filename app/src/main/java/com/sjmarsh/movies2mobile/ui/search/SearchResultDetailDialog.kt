@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.sjmarsh.movies2mobile.R
 import com.sjmarsh.movies2mobile.data.IDataService
@@ -101,7 +102,8 @@ class SearchResultDetailDialog(private val model: ModelBase, private val dataSer
         chip.text = chipTitle
         chip.setOnClickListener {
             dialog?.dismiss()
-            findNavController().navigate(navigationResourceId, bundleOf("id" to id))
+            val navOptions = NavOptions.Builder().setPopUpTo(navigationResourceId, false).build()
+            findNavController().navigate(navigationResourceId, bundleOf("id" to id), navOptions)
         }
         cgDetailItems.addView(chip)
     }
