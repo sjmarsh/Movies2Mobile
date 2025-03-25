@@ -23,8 +23,13 @@ class SearchRecyclerAdapter(private val onItemClicked: (ModelBase) -> Unit)
     }
 
     fun setSearchResults(searchResults: List<ModelBase>) {
+        var prevItemCount = itemCount;
         _searchResults = searchResults.toMutableList()
-        super.notifyItemRangeChanged(0, _searchResults.count())
+        if(searchResults.isEmpty()) {
+            super.notifyItemRangeRemoved(0, prevItemCount)
+        } else {
+            super.notifyItemRangeChanged(0, _searchResults.count())
+        }
     }
 
     fun updateSearchResults(searchResults: List<ModelBase>) {
